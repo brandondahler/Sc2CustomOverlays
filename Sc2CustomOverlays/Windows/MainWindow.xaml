@@ -1,0 +1,35 @@
+﻿<Window x:Class="Sc2CustomOverlays.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Closing="Window_Closing" Loaded="Window_Loaded" SizeToContent="WidthAndHeight">
+    <Grid>
+        <TabControl Margin="22,29,22,29" Name="tabControl1" >
+            <TabItem Header="Overlay Control" Name="tabOSelection">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Name="OverlayControls" Margin="10,10,10,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>                        
+                    </Grid>
+                    <Button Grid.Row="1" Content="Show Overlay" Height="46" HorizontalAlignment="Center" Margin="0,6,0,6" Name="btnShowOverlays" VerticalAlignment="bottom" Width="464" Click="btnShowOverlays_Click" />
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <Menu Height="23" Name="menu1" VerticalAlignment="Top">
+            <MenuItem Header="File">
+                <MenuItem Header="Open Overlay..." Name="menuOpen" Click="menuOpen_Click" />
+                <Separator />
+                <MenuItem Header="Exit" Name="menuExit" Click="menuExit_Click" />
+            </MenuItem>
+        </Menu>
+    </Grid>
+</Window>
