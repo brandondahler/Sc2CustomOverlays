@@ -1,9 +1,0 @@
-Sc2CustomOverlays is a dynamic overlay displayer, designed to be fully customizable for streaming or broadcasting Starcraft 2.
-
-See the wiki for more information about what can and cannot be done so far.
-
-Future plans
-* Button variable control that can make choices visual instead of textual (colors/images on top of the button).
-* The ability to have a client-server model for live broadcasting during tournaments--allowing someone off camera to update any variables.
-* Timer-based rotating variables--have a variable rotate through values on a given interval.
-* Things other people suggest that I haven't thought of.
