@@ -45,12 +45,16 @@ namespace Sc2CustomOverlays
             XmlNode osNode = xDoc.SelectSingleNode("/OverlaySettings");
 
             XmlNodeList glNode = osNode.SelectNodes("Groups/Group");
-            foreach (XmlNode gNode in glNode)
-                variableGroups.Add(gNode.Attributes.GetNamedItem("name").Value, gNode.Attributes.GetNamedItem("label").Value);
+            if (glNode != null)
+            {
+                foreach (XmlNode gNode in glNode)
+                    variableGroups.Add(gNode.Attributes.GetNamedItem("name").Value, gNode.Attributes.GetNamedItem("label").Value);
+            }
 
             variableDictionary.Clear();
             XmlNode vlNode = osNode.SelectSingleNode("Variables");
-            variableDictionary = OverlayVariable.ProcessVariables(vlNode, variableGroups.Keys);
+            if (vlNode != null)
+                variableDictionary = OverlayVariable.ProcessVariables(vlNode, variableGroups.Keys);
 
             foreach (OverlayVariable ov in variableDictionary.Values)
             {
@@ -58,12 +62,15 @@ namespace Sc2CustomOverlays
             }
 
             XmlNodeList oNodes = osNode.SelectNodes("Overlays/Overlay");
-            foreach (XmlNode oNode in oNodes)
+            if (oNodes != null)
             {
-                Overlay o = new Overlay(startDirectory);
-                o.FromXML(oNode);
-                o.SetVariableDictionary(variableDictionary);
-                myOverlays.Add(o);
+                foreach (XmlNode oNode in oNodes)
+                {
+                    Overlay o = new Overlay(startDirectory);
+                    o.FromXML(oNode);
+                    o.SetVariableDictionary(variableDictionary);
+                    myOverlays.Add(o);
+                }
             }
 
         }
