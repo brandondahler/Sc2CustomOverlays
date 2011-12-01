@@ -57,31 +57,39 @@ namespace Sc2CustomOverlays
                 GradientColor gc = new GradientColor();
 
                 gc.color = xColor.Attributes.GetNamedItem("color").Value;
-                gc.offset = null;
+                gc.offset = double.Parse(xColor.Attributes.GetNamedItem("offset").Value);
+                gc.transparent = null;
 
-                XmlNode xOffsetAttrib = xColor.Attributes.GetNamedItem("offset");
-                if (xOffsetAttrib != null)
-                    gc.offset = double.Parse(xOffsetAttrib.Value);
-
-                xOffsetAttrib = xColor.Attributes.GetNamedItem("transparent");
-                if (xOffsetAttrib != null)
-                    gc.transparent = bool.Parse(xOffsetAttrib.Value);
+                foreach (XmlAttribute xAttrib in xColor.Attributes)
+                {
+                    switch (xAttrib.LocalName)
+                    {
+                        case "transparent":
+                            gc.transparent = bool.Parse(xAttrib.Value);
+                            break;
+                    }
+                }
 
                 originalGradientStops.Add(gc);
             }
 
+            foreach (XmlAttribute xAttrib in xGradientNode.Attributes)
+            {
+                switch (xAttrib.LocalName)
+                {
+                    case "angle":
+                        angle = double.Parse(xAttrib.Value); 
+                        break;
+                    case "height":
+                        height = double.Parse(xAttrib.Value);
+                        break;
+                    case "width":
+                        width = double.Parse(xAttrib.Value);
+                        break;
+                    
+                }
+            }
 
-            XmlNode xAttrib = xGradientNode.Attributes.GetNamedItem("angle");
-            if (xAttrib != null)
-                angle = double.Parse(xAttrib.Value); 
-            
-            xAttrib = xGradientNode.Attributes.GetNamedItem("height");
-            if (xAttrib != null)
-                height = double.Parse(xAttrib.Value);
-
-            xAttrib = xGradientNode.Attributes.GetNamedItem("width");
-            if (xAttrib != null)
-                width = double.Parse(xAttrib.Value);
         }
 
         private void UpdateGradient()

@@ -14,7 +14,6 @@ namespace Sc2CustomOverlays
     {
         public event UpdatedEventHandler Updated;
         public string Name { get { return name; } }
-
         public string Label
         {
             get
@@ -25,13 +24,12 @@ namespace Sc2CustomOverlays
                 return label;
             }
         }
-
+        public string Group { get { return group; } }
         public abstract string Value { get; }
-
 
         protected string name = null;
         protected string label = null;
-
+        protected string group = null;
 
         public virtual void FromXML(XmlNode vNode)
         {
@@ -44,6 +42,9 @@ namespace Sc2CustomOverlays
                         break;
                     case "label":
                         label = vNodeAttrib.Value;
+                        break;
+                    case "group":
+                        group = vNodeAttrib.Value;
                         break;
                 }
             }
@@ -64,6 +65,42 @@ namespace Sc2CustomOverlays
         {
             if (Updated != null)
                 Updated();
+        }
+
+        public static Dictionary<string, OverlayVariable> ProcessVariables(XmlNode vlNode, IEnumerable<string> validGroups)
+        {
+            Dictionary<string, OverlayVariable> variableDictionary = new Dictionary<string, OverlayVariable>();
+
+            foreach (XmlNode vNode in vlNode.ChildNodes)
+            {
+                OverlayVariable ov = null;
+                switch (vNode.LocalName)
+                {
+                    case "Counter":
+                        ov = new OverlayCounter();
+                        break;
+
+                    case "DropDown":
+                        ov = new OverlayDropDown();
+                        break;
+
+                    case "String":
+                        ov = new OverlayString();
+                        break;
+                }
+
+                if (ov != null)
+                {
+                    ov.FromXML(vNode);
+
+                    if (!validGroups.Contains(ov.group))
+                        ov.group = null;
+
+                    if (ov.Name != null)
+                        variableDictionary.Add(ov.Name, ov);
+                }
+            }
+            return variableDictionary;
         }
 
     }

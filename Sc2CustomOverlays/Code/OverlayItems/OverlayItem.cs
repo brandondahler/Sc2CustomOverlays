@@ -18,17 +18,22 @@ namespace Sc2CustomOverlays
 
         public virtual void FromXML(XmlNode xItemNode)
         {
-            XmlNode xAttrib = xItemNode.Attributes.GetNamedItem("margin");
-            if (xAttrib != null)
-                margin = (Thickness)(new ThicknessConverter()).ConvertFromString(xAttrib.Value);
 
-            xAttrib = xItemNode.Attributes.GetNamedItem("halign");
-            if (xAttrib != null)
-                hAlign = (HorizontalAlignment)Enum.Parse(typeof(HorizontalAlignment), xAttrib.Value);
-
-            xAttrib = xItemNode.Attributes.GetNamedItem("valign");
-            if (xAttrib != null)
-                vAlign = (VerticalAlignment)Enum.Parse(typeof(VerticalAlignment), xAttrib.Value);
+            foreach (XmlAttribute xAttrib in xItemNode.Attributes)
+            {
+                switch (xAttrib.LocalName)
+                {
+                    case "margin":
+                        margin = (Thickness)(new ThicknessConverter()).ConvertFromString(xAttrib.Value);
+                        break;
+                    case "halign":
+                        hAlign = (HorizontalAlignment)Enum.Parse(typeof(HorizontalAlignment), xAttrib.Value);;
+                        break;
+                    case "valign":
+                        vAlign = (VerticalAlignment)Enum.Parse(typeof(VerticalAlignment), xAttrib.Value);
+                        break;
+                }
+            }
 
         }
 

@@ -17,10 +17,17 @@ namespace Sc2CustomOverlays
     {
         private string originalText = "";
         private string text = "";
+
+        protected HorizontalAlignment? justify = null;
+        protected double? width = null;
+
         private string originalColor = null;
         private string textColor = null;
         private int? fontSize = null;
         private FontFamily fontFamily = null;
+
+        
+        
         
 
         private Label MyLabel = null;
@@ -31,20 +38,16 @@ namespace Sc2CustomOverlays
             {
                 Content = text,
                 HorizontalAlignment = (hAlign.HasValue ? hAlign.Value : HorizontalAlignment.Left),
-                VerticalAlignment = (vAlign.HasValue ? vAlign.Value : VerticalAlignment.Top)
+                VerticalAlignment = (vAlign.HasValue ? vAlign.Value : VerticalAlignment.Top),
+                HorizontalContentAlignment = (justify.HasValue ? justify.Value : HorizontalAlignment.Left)
             };
-            
-            if (hAlign.HasValue)
-                MyLabel.HorizontalContentAlignment = hAlign.Value;
-
-            if (vAlign.HasValue)
-                MyLabel.VerticalContentAlignment = vAlign.Value;
 
             if (margin.HasValue) MyLabel.Margin = margin.Value;
+            if (width.HasValue) MyLabel.Width = width.Value;
+
             if (textColor != null) MyLabel.Foreground = GetColorBrush(textColor);
             if (fontSize.HasValue) MyLabel.FontSize = fontSize.Value;
             if (fontFamily != null) MyLabel.FontFamily = fontFamily;
-            
 
             return MyLabel;
         }
@@ -60,6 +63,12 @@ namespace Sc2CustomOverlays
                     case "value":
                         originalText = xAttrib.Value;
                         text = originalText;
+                        break;
+                    case "justify":
+                        justify = (HorizontalAlignment)Enum.Parse(typeof(HorizontalAlignment), xAttrib.Value);
+                        break;
+                    case "width":
+                        width = double.Parse(xAttrib.Value);
                         break;
                     case "color":
                         originalColor = xAttrib.Value;

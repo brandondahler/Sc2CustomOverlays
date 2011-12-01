@@ -5,7 +5,6 @@
         Closing="Window_Closing" AllowsTransparency="True" Background="Transparent"
         >
     <Grid Name="overlayGrid">
-        <!--<Image HorizontalAlignment="Left" Name="image1" Stretch="None" VerticalAlignment="Top" Source="/Images/test123.png" StretchDirection="Both" />-->
         
     </Grid>
 </Window>

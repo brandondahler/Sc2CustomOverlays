@@ -12,12 +12,19 @@ namespace Sc2CustomOverlays
 {
     class OverlayImage : OverlayItem
     {
+        protected string startDirectory = "/";
+
         protected string originalImageLocation = "";
         protected string imageLocation = "";
         protected int? height = null;
         protected int? width = null;
 
         Image MyImage = null;
+
+        public OverlayImage(string startDir) : base()
+        {
+            startDirectory = startDir;
+        }
 
         public override FrameworkElement GetElement()
         {
@@ -42,13 +49,18 @@ namespace Sc2CustomOverlays
             originalImageLocation = xImageNode.Attributes.GetNamedItem("location").Value;
             imageLocation = originalImageLocation;
 
-            XmlNode xAttrib = xImageNode.Attributes.GetNamedItem("height");
-            if (xAttrib != null)
-                height = int.Parse(xAttrib.Value);
-
-            xAttrib = xImageNode.Attributes.GetNamedItem("width");
-            if (xAttrib != null)
-                width = int.Parse(xAttrib.Value);
+            foreach (XmlAttribute xAttrib in xImageNode.Attributes)
+            {
+                switch (xAttrib.LocalName)
+                {
+                    case "height":
+                        height = int.Parse(xAttrib.Value);
+                        break;
+                    case "width":
+                        width = int.Parse(xAttrib.Value);
+                        break;
+                }
+            }
         }
 
         private void UpdateImage()
@@ -57,7 +69,7 @@ namespace Sc2CustomOverlays
             {
                 try
                 {
-                    BitmapImage bi = new BitmapImage(new Uri("pack://siteoforigin:,,," + imageLocation));
+                    BitmapImage bi = new BitmapImage(new Uri("pack://siteoforigin:,,,/" + startDirectory + imageLocation));
                     MyImage.Source = bi;
 
                     if (height.HasValue)

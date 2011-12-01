@@ -18,7 +18,7 @@
                             <ColumnDefinition />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>                        
+                        </Grid.ColumnDefinitions>
                     </Grid>
                     <Button Grid.Row="1" Content="Show Overlay" Height="46" HorizontalAlignment="Center" Margin="0,6,0,6" Name="btnShowOverlays" VerticalAlignment="bottom" Width="464" Click="btnShowOverlays_Click" />
                 </Grid>

@@ -116,22 +116,53 @@ namespace Sc2CustomOverlays
             OverlayControls.Children.Clear();
             OverlayControls.RowDefinitions.Clear();
 
-            foreach (OverlayVariable ov in overlaySettings.GetVariables())
+            
+            Dictionary<string, GroupBox> variableGroupBoxes = new Dictionary<string, GroupBox>();
+
+            foreach (KeyValuePair<string, string> variableGroup in overlaySettings.GetVariableGroups())
             {
-                OverlayControlsContainer occ = ov.GetElements();
-                int rowNum = OverlayControls.RowDefinitions.Count;
+                GroupBox variableGroupBox = new GroupBox();
+                Grid variableGroupBoxGrid = new Grid();
+
+                variableGroupBoxGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
+                variableGroupBoxGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
+                variableGroupBoxGrid.ColumnDefinitions.Add(new ColumnDefinition() { });
+                variableGroupBoxGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
+                variableGroupBoxGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
+                variableGroupBox.Content = variableGroupBoxGrid;
+
+                variableGroupBox.Header = variableGroup.Value;
+                variableGroupBox.SetValue(Grid.ColumnSpanProperty, 5);
+                variableGroupBox.SetValue(Grid.RowProperty, OverlayControls.RowDefinitions.Count);
+                
 
                 OverlayControls.RowDefinitions.Add(new RowDefinition());
+                OverlayControls.Children.Add(variableGroupBox);
 
-                AddOverlayControl(occ.label, 0, rowNum);
-                AddOverlayControl(occ.modifier, 1, rowNum);
-                AddOverlayControl(occ.save, 3, rowNum);
-                AddOverlayControl(occ.reset, 4, rowNum);
+                variableGroupBoxes.Add(variableGroup.Key, variableGroupBox);
+            }
+
+            foreach (OverlayVariable ov in overlaySettings.GetVariables())
+            {
+                Grid container = OverlayControls;
+
+                if (ov.Group != null && variableGroupBoxes.ContainsKey(ov.Group))
+                    container = (Grid) variableGroupBoxes[ov.Group].Content;
+
+                OverlayControlsContainer occ = ov.GetElements();
+                int rowNum = container.RowDefinitions.Count;
+
+                container.RowDefinitions.Add(new RowDefinition());
+
+                AddOverlayControl(container, occ.label, 0, rowNum);
+                AddOverlayControl(container, occ.modifier, 1, rowNum);
+                AddOverlayControl(container, occ.save, 3, rowNum);
+                AddOverlayControl(container, occ.reset, 4, rowNum);
 
             }
         }
 
-        private void AddOverlayControl(UIElement control, int column, int row)
+        private void AddOverlayControl(Grid container, UIElement control, int column, int row)
         {
             if (control == null)
                 return;
@@ -141,7 +172,7 @@ namespace Sc2CustomOverlays
 
             control.SetValue(Control.MarginProperty, new Thickness(0, 0, 15, 5));
 
-            OverlayControls.Children.Add(control);
+            container.Children.Add(control);
         }
 
 

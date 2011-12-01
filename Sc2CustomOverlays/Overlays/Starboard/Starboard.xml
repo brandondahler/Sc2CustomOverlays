@@ -2,59 +2,69 @@
 <OverlaySettings>
     <Overlays>
         <Overlay>
-            <Image location="/Overlays/Starboard/Background.png" />
+            <Image location="Background.png" />
+
             <Gradient margin="3,3,3,3" width="200" halign="Left">
                 <Color color="#Color1#" offset="0" />
                 <Color color="#Color1#" offset="1" transparent="true" />
             </Gradient>
-            <Gradient margin="3,3,3,3" angle="90">
-                <Color color="Black" offset="0" />
-                <Color color="Black" offset=".5" transparent="true" />
-                <Color color="Black" offset="1" />
-            </Gradient>
+
             <Gradient margin="3,3,3,3" width="200" halign="Right">
                 <Color color="#Color2#" offset="0" transparent="true" />
                 <Color color="#Color2#" offset="1" />
             </Gradient>
 
-            <Image margin="10,0,0,0" valign="Center" width="40" height="40" location="/Overlays/Starboard/#Race1#Logo.png" />
+            <Gradient margin="3,3,3,3" angle="90">
+                <Color color="Black" offset="0" />
+                <Color color="Black" offset="0.5" transparent="true" />
+                <Color color="Black" offset="1" />
+            </Gradient>
+
+            <Image margin="10,0,0,0" valign="Center" width="40" height="40" location="#Race1#Logo.png" />
             <Text margin="70,0,0,0" valign="Center" size="22" color="White" family="Arial" value="#Player1#" />
 
-            <Text margin="0,0,45,0" halign="Center" valign="Center" size="22" color="White" family="Arial" value="#Score1#"  />
-            <Text margin="0,0,0,0"  halign="Center" valign="Center" size="22" color="White" family="Arial" value="-" />
-            <Text margin="45,0,0,0" halign="Center" valign="Center" size="22" color="White" family="Arial" value="#Score2#" />
+            <Text margin="0,0,125,0" width="100" halign="Center" valign="Center" justify="Right" size="22" color="White" family="Arial" value="#Score1#"  />
+            <Text margin="0,0,0,0"  halign="Center" valign="Center" justify="Center" size="22" color="White" family="Arial" value="-" />
+            <Text margin="125,0,0,0" width="100" halign="Center" valign="Center" justify="Left" size="22" color="White" family="Arial" value="#Score2#" />
 
-            <Text margin="0,0,70,0" halign="Right" valign="Center" size="22" color="White" family="Arial" value="#Player2#" />
-            <Image margin="0,0,10,0" halign="Right" valign="Center" width="40" height="40"  location="/Overlays/Starboard/#Race2#Logo.png" />
+            <Text margin="0,0,70,0" halign="Right" valign="Center" justify="Right" size="22" color="White" family="Arial" value="#Player2#" />
+            <Image margin="0,0,10,0" halign="Right" valign="Center" width="40" height="40"  location="#Race2#Logo.png" />
         </Overlay>
     </Overlays>
+    
     <Variables>
-        <String name="Player1" label="Player 1" default="Player 1" />
-        <Counter name="Score1" label="Player 1 Score" default="0" />
-        <DropDown name="Race1" label="Player 1 Race" default="0">
+        <String name="Player1" label="Name" default="Player 1" group="Player1" />
+        <Counter name="Score1" label="Score" default="0" group="Player1" />
+        <DropDown name="Race1" label="Race" default="0" group="Player1">
             <Option label="Terran" value="Terran" />
             <Option label="Protoss" value="Protoss" />
             <Option label="Zerg" value="Zerg" />
             <Option label="Random" value="Random" />
         </DropDown>
-        <DropDown name="Color1" label="Player 1 Color" default="0">
-            <Option label="None" value="#00FFFFFF" />
-            <Option label="Red" value="#88FF0000" />
-            <Option label="Green" value="#8800CC00" />
+        <DropDown name="Color1" label="Color" default="0" group="Player1">
+            <Option label="None" value="##00FFFFFF" />
+            <Option label="Red" value="##88FF0000" />
+            <Option label="Green" value="##8800CC00" />
         </DropDown>
 
-        <String name="Player2" label="Player 2" default="Player 2" />
-        <Counter name="Score2" label="Player 2 Score" default="0" />
-        <DropDown name="Race2" label="Player 2 Race" default="0">
+        <String name="Player2" label="Name" default="Player 2" group="Player2" />
+        <Counter name="Score2" label="Score" default="0" group="Player2" />
+        <DropDown name="Race2" label="Race" default="0" group="Player2">
             <Option label="Terran" value="Terran" />
             <Option label="Protoss" value="Protoss" />
             <Option label="Zerg" value="Zerg" />
             <Option label="Random" value="Random" />
         </DropDown>
-        <DropDown name="Color2" label="Player 2 Color" default="0">
-            <Option label="None" value="#00FFFFFF" />
-            <Option label="Red" value="#88FF0000" />
-            <Option label="Green" value="#8800CC00" />
+        <DropDown name="Color2" label="Color" default="0" group="Player2">
+            <Option label="None" value="##00FFFFFF" />
+            <Option label="Red" value="##88FF0000" />
+            <Option label="Green" value="##8800CC00" />
         </DropDown>
     </Variables>
+
+    <Groups>
+        <Group label="Player 1" name="Player1" />
+        <Group label="Player 2" name="Player2" />
+    </Groups>
+
 </OverlaySettings>

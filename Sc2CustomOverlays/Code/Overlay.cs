@@ -12,12 +12,14 @@ namespace Sc2CustomOverlays
     public class Overlay
     {
 
+        protected string startDirectory = "/";
+
         private List<OverlayItem> overlayItems = new List<OverlayItem>();
         private Dictionary<string, OverlayVariable> variableDictionary = null;
 
-        public Overlay()
+        public Overlay(string startDir)
         {
-            
+            startDirectory = startDir;
         }
 
         public List<FrameworkElement> GetOverlayControls()
@@ -41,7 +43,7 @@ namespace Sc2CustomOverlays
                 switch (xNode.LocalName)
                 {
                     case "Image":
-                        oi = new OverlayImage();
+                        oi = new OverlayImage(startDirectory);
                         break;
                     case "Text":
                         oi = new OverlayText();

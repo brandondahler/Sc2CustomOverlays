@@ -9,13 +9,16 @@ namespace Sc2CustomOverlays
     public class OverlaySettings
     {
         private string fileLocation = null;
+        private string startDirectory = "/";
         private List<Overlay> myOverlays = new List<Overlay>();
         private Dictionary<string, OverlayVariable> variableDictionary = new Dictionary<string, OverlayVariable>();
+        private Dictionary<string, string> variableGroups = new Dictionary<string, string>();
         
 
         public OverlaySettings(string file)
         {
             fileLocation = file;
+            startDirectory = file.Substring(0, file.LastIndexOf("\\") + 1);
             FromXML(file);
         }
 
@@ -24,9 +27,14 @@ namespace Sc2CustomOverlays
             return myOverlays;
         }
 
-        public Dictionary<string, OverlayVariable>.ValueCollection GetVariables()
+        public IEnumerable<OverlayVariable> GetVariables()
         {
             return variableDictionary.Values;
+        }
+
+        public Dictionary<string, string> GetVariableGroups()
+        {
+            return variableGroups;
         }
 
         public void FromXML(string file)
@@ -36,40 +44,23 @@ namespace Sc2CustomOverlays
 
             XmlNode osNode = xDoc.SelectSingleNode("/OverlaySettings");
 
+            XmlNodeList glNode = osNode.SelectNodes("Groups/Group");
+            foreach (XmlNode gNode in glNode)
+                variableGroups.Add(gNode.Attributes.GetNamedItem("name").Value, gNode.Attributes.GetNamedItem("label").Value);
+
             variableDictionary.Clear();
             XmlNode vlNode = osNode.SelectSingleNode("Variables");
-            foreach (XmlNode vNode in vlNode.ChildNodes)
+            variableDictionary = OverlayVariable.ProcessVariables(vlNode, variableGroups.Keys);
+
+            foreach (OverlayVariable ov in variableDictionary.Values)
             {
-                OverlayVariable ov = null;
-                switch (vNode.LocalName)
-                {
-                    case "Counter":
-                        ov = new OverlayCounter();
-                        break;
-
-                    case "DropDown":
-                        ov = new OverlayDropDown();
-                        break;
-
-                    case "String":
-                    default:
-                        ov = new OverlayString();
-                        break;
-                }
-                ov.FromXML(vNode);
-
-                if (ov.Name != null)
-                {
-                    variableDictionary.Add(ov.Name, ov);
-                    ov.Updated += new UpdatedEventHandler(VariableUpdated);
-                }
+                ov.Updated += new UpdatedEventHandler(VariableUpdated);
             }
-
 
             XmlNodeList oNodes = osNode.SelectNodes("Overlays/Overlay");
             foreach (XmlNode oNode in oNodes)
             {
-                Overlay o = new Overlay();
+                Overlay o = new Overlay(startDirectory);
                 o.FromXML(oNode);
                 o.SetVariableDictionary(variableDictionary);
                 myOverlays.Add(o);

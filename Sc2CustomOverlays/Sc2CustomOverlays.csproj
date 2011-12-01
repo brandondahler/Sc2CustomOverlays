@@ -118,7 +118,6 @@
   <ItemGroup>
     <None Include="Overlays\Starboard\Background.png" />
     <None Include="Overlays\Starboard\Starboard.xml" />
-    <None Include="Overlays\test123.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
