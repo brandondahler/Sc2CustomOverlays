@@ -4,7 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 
-namespace Sc2CustomOverlays
+using Sc2CustomOverlays.Code.OverlayVariables;
+using Sc2CustomOverlays.Code.Exceptions;
+using System.Windows;
+
+namespace Sc2CustomOverlays.Code
 {
     public class OverlaySettings
     {
@@ -54,7 +58,15 @@ namespace Sc2CustomOverlays
             variableDictionary.Clear();
             XmlNode vlNode = osNode.SelectSingleNode("Variables");
             if (vlNode != null)
-                variableDictionary = OverlayVariable.ProcessVariables(vlNode, variableGroups.Keys);
+            {
+                try
+                {
+                    variableDictionary = OverlayVariable.ProcessVariables(vlNode, variableGroups.Keys, startDirectory);
+                } catch (VariableParseException ex) {
+                    MessageBox.Show(ex.Message);
+                    throw new OverlayLoadingException(OverlayLoadingFailure.VariableProcessing);
+                }
+            }
 
             foreach (OverlayVariable ov in variableDictionary.Values)
             {
@@ -67,7 +79,13 @@ namespace Sc2CustomOverlays
                 foreach (XmlNode oNode in oNodes)
                 {
                     Overlay o = new Overlay(startDirectory);
-                    o.FromXML(oNode);
+                    try
+                    {
+                        o.FromXML(oNode);
+                    } catch (OverlayCreationException ex) {
+                        MessageBox.Show(ex.Message);
+                        throw new OverlayLoadingException(OverlayLoadingFailure.OverlayCreation);
+                    }
                     o.SetVariableDictionary(variableDictionary);
                     myOverlays.Add(o);
                 }

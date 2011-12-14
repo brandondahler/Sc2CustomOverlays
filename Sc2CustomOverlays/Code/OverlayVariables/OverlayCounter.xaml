@@ -1,0 +1,14 @@
+﻿<ov:OverlayVariable x:Class="Sc2CustomOverlays.Code.OverlayVariables.OverlayCounter"
+             xmlns:ov="clr-namespace:Sc2CustomOverlays.Code.OverlayVariables"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d"
+             Updated="OverlayVariable_Updated">
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+        <Button Content="-" Margin="0,0,5,0" Padding="8,0" Click="SubtractCountHandler"  />
+        <Label Name="ValueLabel" Margin="0,0,3,0" MinWidth="30" HorizontalContentAlignment="Center" />
+        <Button Content="+" Margin="0,0,5,0" Padding="8,0" Click="AddCountHandler" />
+    </StackPanel>
+</ov:OverlayVariable>

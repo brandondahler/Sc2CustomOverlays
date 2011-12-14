@@ -5,7 +5,10 @@ using System.Text;
 using System.Xml;
 using System.Windows;
 
-namespace Sc2CustomOverlays
+using Sc2CustomOverlays.Code.OverlayVariables;
+using Sc2CustomOverlays.Code.Exceptions;
+
+namespace Sc2CustomOverlays.Code.OverlayItems
 {
     abstract class OverlayItem
     {
@@ -21,17 +24,28 @@ namespace Sc2CustomOverlays
 
             foreach (XmlAttribute xAttrib in xItemNode.Attributes)
             {
-                switch (xAttrib.LocalName)
+                try
                 {
-                    case "margin":
-                        margin = (Thickness)(new ThicknessConverter()).ConvertFromString(xAttrib.Value);
-                        break;
-                    case "halign":
-                        hAlign = (HorizontalAlignment)Enum.Parse(typeof(HorizontalAlignment), xAttrib.Value);;
-                        break;
-                    case "valign":
-                        vAlign = (VerticalAlignment)Enum.Parse(typeof(VerticalAlignment), xAttrib.Value);
-                        break;
+                    switch (xAttrib.LocalName)
+                    {
+                        case "margin":
+                            margin = (Thickness)(new ThicknessConverter()).ConvertFromString(xAttrib.Value);
+                            break;
+                        case "halign":
+                            hAlign = (HorizontalAlignment)Enum.Parse(typeof(HorizontalAlignment), xAttrib.Value);
+                            break;
+                        case "valign":
+                            vAlign = (VerticalAlignment)Enum.Parse(typeof(VerticalAlignment), xAttrib.Value);
+                            break;
+                    }
+                } catch (NotSupportedException) {
+                    throw new InvalidXMLValueException("OverlayItem", xAttrib.LocalName, InvalidValueReason.FormatIncorrect);
+                } catch (ArgumentNullException) {
+                    throw new InvalidXMLValueException("OverlayItem", xAttrib.LocalName, InvalidValueReason.InvalidValue);
+                } catch (ArgumentException) {
+                    throw new InvalidXMLValueException("OverlayItem", xAttrib.LocalName, InvalidValueReason.InvalidValue);
+                } catch (OverflowException) {
+                    throw new InvalidXMLValueException("OverlayItem", xAttrib.LocalName, InvalidValueReason.InvalidValue);
                 }
             }
 

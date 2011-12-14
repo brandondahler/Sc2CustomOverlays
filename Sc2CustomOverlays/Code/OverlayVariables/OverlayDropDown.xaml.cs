@@ -4,43 +4,49 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 using System.Xml;
+using Sc2CustomOverlays.Code.Exceptions;
 
-namespace Sc2CustomOverlays
+namespace Sc2CustomOverlays.Code.OverlayVariables
 {
-    public class OverlayDropDown : OverlayVariable
+    public partial class OverlayDropDown : OverlayVariable
     {
         public override string Value
         {
             get
             {
-                if (value != null)
-                    return value;
+                if (_currentValue != null)
+                    return _currentValue;
 
                 return options.ElementAt(defaultIndex).Value;
             }
         }
 
-        private int defaultIndex = 0;
-
-        private string _value = null;
-        private string value
+        private string _currentValue = null;
+        protected string currentValue
         {
-            get
-            {
-                return _value;
-            }
-
+            get { return _currentValue; }
             set
             {
-                _value = value;
+                _currentValue = value;
                 RaiseUpdated();
             }
         }
+        private int defaultIndex = 0;
 
         private Dictionary<string, string> options = new Dictionary<string,string>();
-
-        private ComboBox MyDropDown = null;
+        
+        public OverlayDropDown()
+        {
+            InitializeComponent();
+        }
 
         public override void FromXML(XmlNode vNode)
         {
@@ -48,11 +54,18 @@ namespace Sc2CustomOverlays
 
             foreach (XmlAttribute vNodeAttrib in vNode.Attributes)
             {
-                switch (vNodeAttrib.LocalName)
+                try
                 {
-                    case "default":
-                        defaultIndex = int.Parse(vNodeAttrib.Value);
-                        break;
+                    switch (vNodeAttrib.LocalName)
+                    {
+                        case "default":
+                            defaultIndex = int.Parse(vNodeAttrib.Value);
+                            break;
+                    }
+                } catch (FormatException) {
+                    throw new InvalidXMLValueException("OverlayDropDown", vNodeAttrib.Value, InvalidValueReason.FormatIncorrect);
+                } catch (OverflowException) {
+                    throw new InvalidXMLValueException("OverlayDropDown", vNodeAttrib.Value, InvalidValueReason.Overflow);
                 }
             }
 
@@ -92,15 +105,11 @@ namespace Sc2CustomOverlays
         public override OverlayControlsContainer GetElements()
         {
             OverlayControlsContainer occ = base.GetElements();
-            //StackPanel sp = new StackPanel() { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 15) };
 
-            MyDropDown = new ComboBox() { Width = 150 };
             foreach (string optionName in options.Keys)
-                MyDropDown.Items.Add(optionName);
+                ValueDropDown.Items.Add(optionName);
 
             UpdateSelection();
-
-            occ.modifier = MyDropDown;
 
             occ.save.AddHandler(Button.ClickEvent, new RoutedEventHandler(SaveUpdateHandler));
             occ.reset.AddHandler(Button.ClickEvent, new RoutedEventHandler(ClearUpdateHandler));
@@ -110,27 +119,20 @@ namespace Sc2CustomOverlays
 
         private void UpdateSelection()
         {
-            if (MyDropDown != null)
-            {
-                if (value != null)
-                    MyDropDown.SelectedItem = value;
-                else
-                    MyDropDown.SelectedIndex = defaultIndex;
-            }
+            if (currentValue != null)
+                ValueDropDown.SelectedItem = currentValue;
+            else
+                ValueDropDown.SelectedIndex = defaultIndex;
         }
 
         private void SaveUpdateHandler(object sender, RoutedEventArgs rea)
-        {
-            if (MyDropDown != null)
-            {
-                value = options[(string) MyDropDown.SelectedItem];
-            }
+        {    
+            currentValue = options[(string)ValueDropDown.SelectedItem];
         }
 
         private void ClearUpdateHandler(object sender, RoutedEventArgs rea)
         {
-            value = null;
-            UpdateSelection();
+            currentValue = null;
         }
     }
 }

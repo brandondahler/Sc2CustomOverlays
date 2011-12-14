@@ -14,12 +14,27 @@ using System.Windows.Shapes;
 using Microsoft.Win32;
 using System.Windows.Controls.Primitives;
 
-namespace Sc2CustomOverlays
+using Sc2CustomOverlays.Code;
+using Sc2CustomOverlays.Code.OverlayVariables;
+using Sc2CustomOverlays.Code.Exceptions;
+
+namespace Sc2CustomOverlays.Windows
 {
     public partial class MainWindow : Window
     {
-        private OverlaySettings overlaySettings = null;
-        private List<OverlayWindow> overlayWindows = new List<OverlayWindow>();
+        private OverlaySettings _overlaySettings = null;
+        private OverlaySettings overlaySettings
+        {
+            get { return _overlaySettings; }
+            set 
+            {
+                if (_overlaySettings != null)
+                    CloseOverlayWindows(_overlaySettings);
+                
+                _overlaySettings = value;
+            }
+        }
+        private List<Overlay> overlayWindows = new List<Overlay>();
 
         
         public MainWindow()
@@ -32,15 +47,17 @@ namespace Sc2CustomOverlays
 
             if (overlayWindows.Count() > 0)
             {
-                CloseOverlayWindows();
-            } else {
+                foreach (Overlay o in overlayWindows)
+                {
+                    o.Hide();   
+                }
 
+                overlayWindows.Clear();
+            } else {
                 foreach (Overlay o in overlaySettings.GetOverlays())
                 {
-                    OverlayWindow w = new OverlayWindow(o);
-                    w.Show();
-
-                    overlayWindows.Add(w);
+                    o.Show();
+                    overlayWindows.Add(o);
                 }
             }
 
@@ -49,15 +66,15 @@ namespace Sc2CustomOverlays
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            CloseOverlayWindows();
+            CloseOverlayWindows(overlaySettings);
         }
 
-        private void CloseOverlayWindows()
+        private void CloseOverlayWindows(OverlaySettings os)
         {
-            foreach (OverlayWindow w in overlayWindows)
+            foreach (Overlay o in os.GetOverlays())
             {
-                w.AllowClose = true;
-                w.Close();
+                o.AllowClose = true;
+                o.Close();
             }
 
             overlayWindows.Clear();
@@ -75,12 +92,17 @@ namespace Sc2CustomOverlays
 
             bool? selected = ofd.ShowDialog();
             if (selected != null && selected.Value)
-            {
-                CloseOverlayWindows();
-
+            {                
                 string overlayFile = GetRelativePath(ofd.FileName);
-                overlaySettings = new OverlaySettings(overlayFile);
-                LoadControls();
+                try
+                {
+                    overlaySettings = new OverlaySettings(overlayFile);
+                    LoadControls();
+                } catch (OverlayLoadingException ex) {
+                    MessageBox.Show(ex.Message);
+                } catch (Exception ex) {
+                    MessageBox.Show("Unhandled exception: " + ex.Message);
+                }
             }
         }
 
@@ -103,10 +125,10 @@ namespace Sc2CustomOverlays
             {
                 overlaySettings = new OverlaySettings("Overlays\\Starboard\\Starboard.xml");
                 LoadControls();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(this, ex.Message);
+            } catch (OverlayLoadingException ex) {
+                MessageBox.Show(ex.Message);
+            } catch (Exception ex) {
+                MessageBox.Show("Unhandled exception: " + ex.Message);
             }
             
         }

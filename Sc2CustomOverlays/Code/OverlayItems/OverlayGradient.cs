@@ -9,7 +9,10 @@ using System.Windows.Shapes;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace Sc2CustomOverlays
+using Sc2CustomOverlays.Code.OverlayVariables;
+using Sc2CustomOverlays.Code.Exceptions;
+
+namespace Sc2CustomOverlays.Code.OverlayItems
 {
     class OverlayGradient : OverlayItem
     {
@@ -56,17 +59,36 @@ namespace Sc2CustomOverlays
             {
                 GradientColor gc = new GradientColor();
 
-                gc.color = xColor.Attributes.GetNamedItem("color").Value;
-                gc.offset = double.Parse(xColor.Attributes.GetNamedItem("offset").Value);
+                try
+                {
+                    gc.color = xColor.Attributes.GetNamedItem("color").Value;
+                    gc.offset = double.Parse(xColor.Attributes.GetNamedItem("offset").Value);
+                } catch (FormatException) {
+                    throw new InvalidXMLValueException("OverlayGradient:Color", "offset", InvalidValueReason.FormatIncorrect);
+                } catch (ArgumentNullException) {
+                    throw new InvalidXMLValueException("OverlayGradient:Color", "offset", InvalidValueReason.NotSpecified);
+                } catch (OverflowException) {
+                    throw new InvalidXMLValueException("OverlayGradient:Color", "offset", InvalidValueReason.Overflow);
+                } catch (Exception) {
+                    throw new InvalidXMLValueException("OverlayGradient:Color", "color or offset", InvalidValueReason.NotSpecified);
+                }
+
                 gc.transparent = null;
 
                 foreach (XmlAttribute xAttrib in xColor.Attributes)
                 {
-                    switch (xAttrib.LocalName)
+                    try
                     {
-                        case "transparent":
-                            gc.transparent = bool.Parse(xAttrib.Value);
-                            break;
+                        switch (xAttrib.LocalName)
+                        {
+                            case "transparent":
+                                gc.transparent = bool.Parse(xAttrib.Value);
+                                break;
+                        }
+                    } catch (FormatException) {
+                        throw new InvalidXMLValueException("OverlayGradient:Color", "transparent", InvalidValueReason.FormatIncorrect);
+                    } catch (ArgumentNullException) {
+                        throw new InvalidXMLValueException("OverlayGradient:Color", "transparent", InvalidValueReason.NotSpecified);
                     }
                 }
 
@@ -75,18 +97,27 @@ namespace Sc2CustomOverlays
 
             foreach (XmlAttribute xAttrib in xGradientNode.Attributes)
             {
-                switch (xAttrib.LocalName)
+                try
                 {
-                    case "angle":
-                        angle = double.Parse(xAttrib.Value); 
-                        break;
-                    case "height":
-                        height = double.Parse(xAttrib.Value);
-                        break;
-                    case "width":
-                        width = double.Parse(xAttrib.Value);
-                        break;
-                    
+                    switch (xAttrib.LocalName)
+                    {
+                        case "angle":
+                            angle = double.Parse(xAttrib.Value);
+                            break;
+                        case "height":
+                            height = double.Parse(xAttrib.Value);
+                            break;
+                        case "width":
+                            width = double.Parse(xAttrib.Value);
+                            break;
+
+                    }
+                } catch (FormatException) {
+                    throw new InvalidXMLValueException("OverlayGradient", xAttrib.LocalName, InvalidValueReason.FormatIncorrect);
+                } catch (ArgumentNullException) {
+                    throw new InvalidXMLValueException("OverlayGradient", xAttrib.LocalName, InvalidValueReason.NotSpecified);
+                } catch (OverflowException) {
+                    throw new InvalidXMLValueException("OverlayGradient", xAttrib.LocalName, InvalidValueReason.Overflow);
                 }
             }
 

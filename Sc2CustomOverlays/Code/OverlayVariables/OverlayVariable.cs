@@ -2,18 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Controls;
 using System.Xml;
 using System.Windows;
-using System.Windows.Controls;
+using Sc2CustomOverlays.Code.Exceptions;
 
-namespace Sc2CustomOverlays
+namespace Sc2CustomOverlays.Code.OverlayVariables
 {
     public delegate void UpdatedEventHandler();
 
-    public abstract class OverlayVariable
+    public partial class OverlayVariable : UserControl
     {
+
         public event UpdatedEventHandler Updated;
-        public string Name { get { return name; } }
+        public string VariableName { get { return name; } }
         public string Label
         {
             get
@@ -25,7 +27,7 @@ namespace Sc2CustomOverlays
             }
         }
         public string Group { get { return group; } }
-        public abstract string Value { get; }
+        public virtual string Value { get { throw new NotImplementedException(); } }
 
         protected string name = null;
         protected string label = null;
@@ -53,10 +55,12 @@ namespace Sc2CustomOverlays
         public virtual OverlayControlsContainer GetElements()
         {
             OverlayControlsContainer occ = new OverlayControlsContainer();
-            
-            occ.label = new Label() { Content = Label};
+
+            occ.label = new Label() { Content = Label };
             occ.save = new Button() { Content = "Save", Padding = new Thickness(15, 0, 15, 0) };
             occ.reset = new Button() { Content = "Reset", Padding = new Thickness(15, 0, 15, 0) };
+
+            occ.modifier = this;
 
             return occ;
         }
@@ -67,7 +71,7 @@ namespace Sc2CustomOverlays
                 Updated();
         }
 
-        public static Dictionary<string, OverlayVariable> ProcessVariables(XmlNode vlNode, IEnumerable<string> validGroups)
+        public static Dictionary<string, OverlayVariable> ProcessVariables(XmlNode vlNode, IEnumerable<string> validGroups, string startDirectory)
         {
             Dictionary<string, OverlayVariable> variableDictionary = new Dictionary<string, OverlayVariable>();
 
@@ -87,22 +91,40 @@ namespace Sc2CustomOverlays
                     case "String":
                         ov = new OverlayString();
                         break;
+
+                    case "ItemSelector":
+                        ov = new OverlayItemSelector(startDirectory);
+                        break;
                 }
 
                 if (ov != null)
                 {
-                    ov.FromXML(vNode);
+                    try
+                    {
+                        ov.FromXML(vNode);
+                    } catch (InvalidXMLValueException ex) {
+                        MessageBox.Show(ex.Message);
+                        throw new VariableParseException(VariableParseFailure.InvalidXML);
+                    }
 
-                    if (!validGroups.Contains(ov.group))
+                    if (ov.group != null && !validGroups.Contains(ov.group))
                         ov.group = null;
 
-                    if (ov.Name != null)
-                        variableDictionary.Add(ov.Name, ov);
+                    try
+                    {
+                        variableDictionary.Add(ov.VariableName, ov);
+                    } catch (ArgumentException) {
+                        if (ov.VariableName == null)
+                        {
+                            throw new VariableParseException(VariableParseFailure.NullVariable);
+                        } else {
+                            throw new VariableParseException(VariableParseFailure.DuplicateVariable);
+                        }
+                    }
                 }
             }
             return variableDictionary;
         }
-
     }
 
 }

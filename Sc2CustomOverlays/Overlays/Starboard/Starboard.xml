@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <OverlaySettings>
     <Overlays>
-        <Overlay>
+        <Overlay halign="Center" margin="100,0,100,0">
             <Image location="Background.png" />
 
             <Gradient margin="3,3,3,3" width="200" halign="Left">
@@ -35,31 +35,31 @@
     <Variables>
         <String name="Player1" label="Name" default="Player 1" group="Player1" />
         <Counter name="Score1" label="Score" default="0" group="Player1" />
-        <DropDown name="Race1" label="Race" default="0" group="Player1">
-            <Option label="Terran" value="Terran" />
-            <Option label="Protoss" value="Protoss" />
-            <Option label="Zerg" value="Zerg" />
-            <Option label="Random" value="Random" />
-        </DropDown>
-        <DropDown name="Color1" label="Color" default="0" group="Player1">
-            <Option label="None" value="##00FFFFFF" />
-            <Option label="Red" value="##88FF0000" />
-            <Option label="Green" value="##8800CC00" />
-        </DropDown>
+        <ItemSelector name="Race1" label="Race" default="Terran" group="Player1" columns="4" itemHeight="30">
+            <Option image="TerranLogoBlack.png" value="Terran" />
+            <Option image="ProtossLogoBlack.png" value="Protoss" />
+            <Option image="ZergLogoBlack.png" value="Zerg" />
+            <Option image="RandomLogoBlack.png" value="Random" />
+        </ItemSelector>
+        <ItemSelector name="Color1" label="Color" default="#00FFFFFF" columns="5" itemHeight="22" itemWidth="36" group="Player1">
+            <Option alt="None" color="Transparent" value="#00FFFFFF" />
+            <Option alt="Red" color="#FF0000" value="#88FF0000" />
+            <Option alt="Green" color="#00CC00" value="#8800CC00" />
+        </ItemSelector>
 
         <String name="Player2" label="Name" default="Player 2" group="Player2" />
         <Counter name="Score2" label="Score" default="0" group="Player2" />
-        <DropDown name="Race2" label="Race" default="0" group="Player2">
-            <Option label="Terran" value="Terran" />
-            <Option label="Protoss" value="Protoss" />
-            <Option label="Zerg" value="Zerg" />
-            <Option label="Random" value="Random" />
-        </DropDown>
-        <DropDown name="Color2" label="Color" default="0" group="Player2">
-            <Option label="None" value="##00FFFFFF" />
-            <Option label="Red" value="##88FF0000" />
-            <Option label="Green" value="##8800CC00" />
-        </DropDown>
+        <ItemSelector name="Race2" label="Race" default="Terran" columns="4" itemHeight="30"  group="Player2">
+            <Option image="TerranLogoBlack.png" value="Terran" />
+            <Option image="ProtossLogoBlack.png" value="Protoss" />
+            <Option image="ZergLogoBlack.png" value="Zerg" />
+            <Option image="RandomLogoBlack.png" value="Random" />
+        </ItemSelector>
+        <ItemSelector name="Color2" label="Color" default="#00FFFFFF" columns="5" itemHeight="22" itemWidth="36" group="Player2">
+            <Option alt="None" color="Transparent" value="#00FFFFFF" />
+            <Option alt="Red" color="#FF0000" value="#88FF0000" />
+            <Option alt="Green" color="#00CC00" value="#8800CC00" />
+        </ItemSelector>
     </Variables>
 
     <Groups>

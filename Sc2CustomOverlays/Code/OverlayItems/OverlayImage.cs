@@ -8,7 +8,10 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Windows.Media;
 
-namespace Sc2CustomOverlays
+using Sc2CustomOverlays.Code.OverlayVariables;
+using Sc2CustomOverlays.Code.Exceptions;
+
+namespace Sc2CustomOverlays.Code.OverlayItems
 {
     class OverlayImage : OverlayItem
     {
@@ -46,19 +49,33 @@ namespace Sc2CustomOverlays
         {
             base.FromXML(xImageNode);
 
-            originalImageLocation = xImageNode.Attributes.GetNamedItem("location").Value;
-            imageLocation = originalImageLocation;
+            try
+            {
+                originalImageLocation = xImageNode.Attributes.GetNamedItem("location").Value;
+                imageLocation = originalImageLocation;
+            } catch (Exception) {
+                throw new InvalidXMLValueException("OverlayImage", "location", InvalidValueReason.NotSpecified);
+            }
 
             foreach (XmlAttribute xAttrib in xImageNode.Attributes)
             {
-                switch (xAttrib.LocalName)
+                try
                 {
-                    case "height":
-                        height = int.Parse(xAttrib.Value);
-                        break;
-                    case "width":
-                        width = int.Parse(xAttrib.Value);
-                        break;
+                    switch (xAttrib.LocalName)
+                    {
+                        case "height":
+                            height = int.Parse(xAttrib.Value);
+                            break;
+                        case "width":
+                            width = int.Parse(xAttrib.Value);
+                            break;
+                    }
+                } catch (FormatException) {
+                    throw new InvalidXMLValueException("OverlayImage", xAttrib.LocalName, InvalidValueReason.FormatIncorrect);
+                } catch (ArgumentNullException) {
+                    throw new InvalidXMLValueException("OverlayImage", xAttrib.LocalName, InvalidValueReason.NotSpecified);
+                } catch (OverflowException) {
+                    throw new InvalidXMLValueException("OverlayImage", xAttrib.LocalName, InvalidValueReason.Overflow);
                 }
             }
         }

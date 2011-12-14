@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Sc2CustomOverlays
+using Sc2CustomOverlays.Code.OverlayVariables;
+
+namespace Sc2CustomOverlays.Code
 {
 
     class VariableEvaluator
@@ -29,7 +31,7 @@ namespace Sc2CustomOverlays
                     Dictionary<string, OverlayVariable> newDictionary = new Dictionary<string, OverlayVariable>(VariableDictionary);
                     newDictionary.Remove(varName);
 
-                    return ReplaceVariables(VariableDictionary[varName].Value, newDictionary);
+                    return ReplaceVariables((string) VariableDictionary[varName].Value, newDictionary);
                 }
 
             }

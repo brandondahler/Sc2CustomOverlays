@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 
-namespace Sc2CustomOverlays
+namespace Sc2CustomOverlays.Code
 {
     public class OverlayControlsContainer
     {

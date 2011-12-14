@@ -10,8 +10,10 @@ using System.Windows.Media;
 using System.Xml;
 using System.Text.RegularExpressions;
 
+using Sc2CustomOverlays.Code.OverlayVariables;
+using Sc2CustomOverlays.Code.Exceptions;
 
-namespace Sc2CustomOverlays
+namespace Sc2CustomOverlays.Code.OverlayItems
 {
     class OverlayText : OverlayItem
     {
@@ -58,29 +60,45 @@ namespace Sc2CustomOverlays
 
             foreach (XmlAttribute xAttrib in xTextNode.Attributes)
             {
-                switch (xAttrib.LocalName)
+                try
                 {
-                    case "value":
-                        originalText = xAttrib.Value;
-                        text = originalText;
-                        break;
-                    case "justify":
-                        justify = (HorizontalAlignment)Enum.Parse(typeof(HorizontalAlignment), xAttrib.Value);
-                        break;
-                    case "width":
-                        width = double.Parse(xAttrib.Value);
-                        break;
-                    case "color":
-                        originalColor = xAttrib.Value;
-                        textColor = originalColor;
-                        break;
-                    case "size":
-                        fontSize = int.Parse(xAttrib.Value);
-                        break;
-                    case "family":
-                        fontFamily = new FontFamily(xAttrib.Value);
-                        break;
+                    switch (xAttrib.LocalName)
+                    {
+                        case "value":
+                            originalText = xAttrib.Value;
+                            text = originalText;
+                            break;
+                        case "justify":
+                            justify = (HorizontalAlignment)Enum.Parse(typeof(HorizontalAlignment), xAttrib.Value);
+                            break;
+                        case "width":
+                            width = double.Parse(xAttrib.Value);
+                            break;
+                        case "color":
+                            originalColor = xAttrib.Value;
+                            textColor = originalColor;
+
+                            if (ColorConverter.ConvertFromString(xAttrib.Value) == null)
+                                throw new InvalidXMLValueException("OverlayText", xAttrib.LocalName, InvalidValueReason.InvalidValue);
+
+                            break;
+                        case "size":
+                            fontSize = int.Parse(xAttrib.Value);
+                            break;
+                        case "family":
+                            fontFamily = new FontFamily(xAttrib.Value);
+                            break;
+                    }
+                } catch (FormatException) {
+                    throw new InvalidXMLValueException("OverlayText", xAttrib.LocalName, InvalidValueReason.FormatIncorrect);
+                } catch (ArgumentNullException) {
+                    throw new InvalidXMLValueException("OverlayText", xAttrib.LocalName, InvalidValueReason.NotSpecified);
+                } catch (ArgumentException) {
+                    throw new InvalidXMLValueException("OverlayText", xAttrib.LocalName, InvalidValueReason.InvalidValue);
+                } catch (OverflowException) {
+                    throw new InvalidXMLValueException("OverlayText", xAttrib.LocalName, InvalidValueReason.Overflow);
                 }
+
             }
 
         }
