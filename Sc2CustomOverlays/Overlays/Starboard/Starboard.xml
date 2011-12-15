@@ -1,4 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Starboard is Copyright (c) 2010 William Eddins under the MIT license.
+This is not Starboard but a file that can be used within Sc2CustomOverlays to create an overlay that mimics many of the functions.
+
+Visit https://github.com/ascendedguard/starboard-sc2 for access to the Starboard code or http://ascendtv.com/starboard/ to download Starboard.
+-->
 <OverlaySettings>
     <Overlays>
         <Overlay halign="Center" margin="100,0,100,0">
