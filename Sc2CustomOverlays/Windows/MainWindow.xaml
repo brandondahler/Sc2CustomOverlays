@@ -20,7 +20,92 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                     </Grid>
-                    <Button Grid.Row="1" Content="Show Overlay" Height="46" HorizontalAlignment="Stretch" Margin="0,6,0,6" Name="btnShowOverlays" VerticalAlignment="bottom" MinWidth="200" Click="btnShowOverlays_Click" />
+                    <Button Grid.Row="1" Name="btnShowOverlays" Content="Show Overlay" Height="46" HorizontalAlignment="Stretch" Margin="0,6,0,6"  VerticalAlignment="bottom" MinWidth="200" 
+                            Click="btnShowOverlays_Click" />
+                </Grid>
+            </TabItem>
+            <TabItem Header="Connection" Name="tabConnection">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <GroupBox Grid.Row="0" Header="Client">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            
+                            <Label Grid.Row="0" Content="IP Address" Margin="3" />
+                            <TextBox Grid.Row="0" Grid.Column="1" Name="txtConnectIPAddress" Width="150" Margin="3" />
+
+                            <Label Grid.Row="1" Content="Port" Margin="3" />
+                            <TextBox Grid.Row="1" Grid.Column="1" Name="txtConnectPort" Width="150" Margin="3" />
+
+                            <Button Grid.Row="2" Grid.ColumnSpan="2" Name="btnDiscoverServers" Content="Find Server" Height="25" Margin="3" 
+                                    Click="btnDiscoverServers_Click" />
+
+                            <Label Grid.Row="3" Content="Password" Margin="3" />
+                            <PasswordBox Grid.Row="3" Grid.Column="1" Name="pwdConnectPassword" Width="150" Margin="3" />
+
+                            <Button Grid.Row="4" Grid.ColumnSpan="2" Name="btnConnect" Height="35" Content="Connect" Margin="3" />
+
+                            <Label Grid.Row="5" Grid.ColumnSpan="2" Name="lblClientStatus" Content="Not Connected" Margin="3" />
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Grid.Row="1" Header="Server">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <Label Grid.Row="0" Content="Port" Margin="3" />
+                            <TextBox Grid.Row="0" Grid.Column="1" Name="txtServerPort" Text="9999" Width="150" Margin="3" />
+
+                            <Label Grid.Row="1" Content="Server Password" Margin="3" />
+                            <PasswordBox Grid.Row="1" Grid.Column="1" Name="pwdServerPassword" Width="150" Margin="3" />
+
+                            <Grid Grid.Row="2" Grid.ColumnSpan="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+
+                                <CheckBox Grid.Row="0" Grid.ColumnSpan="2" Name="chkMakeDiscoverable" Content="Make Discoverable" Margin="3" 
+                                          Checked="chkMakeDiscoverable_CheckChanged" Unchecked="chkMakeDiscoverable_CheckChanged" />
+                                
+                                <Label Grid.Row="1" Name="lblDiscoverName" Content="Discover Name" Margin="9,3,3,3" Visibility="Collapsed" />
+                                <TextBox Grid.Row="1" Grid.Column="1" Name="txtDiscoverName" Text="Unnamed Starboard" Width="150" Margin="3" Visibility="Collapsed" />
+                                    
+                            </Grid>
+                            
+                            <Button Grid.Row="3" Grid.ColumnSpan="2" Name="btnStartListening" Content="Start Listening" Height="30" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" 
+                                    MinWidth="200" Margin="3" Click="btnStartListening_Click" />
+                            
+                            <Label Grid.Row="4" Grid.ColumnSpan="2" Name="lblServerStatus" Content="Not Listening" Margin="3" />
+                        </Grid>
+                    </GroupBox>
                 </Grid>
             </TabItem>
         </TabControl>

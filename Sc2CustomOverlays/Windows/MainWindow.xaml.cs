@@ -17,6 +17,9 @@ using System.Windows.Controls.Primitives;
 using Sc2CustomOverlays.Code;
 using Sc2CustomOverlays.Code.OverlayVariables;
 using Sc2CustomOverlays.Code.Exceptions;
+using Sc2CustomOverlays.Code.Networking.Discovery;
+using Sc2CustomOverlays.Code.Networking.Discovery.Shared;
+using System.Net;
 
 namespace Sc2CustomOverlays.Windows
 {
@@ -35,6 +38,8 @@ namespace Sc2CustomOverlays.Windows
             }
         }
         private List<Overlay> overlayWindows = new List<Overlay>();
+
+        private bool IsListening = false;
 
         
         public MainWindow()
@@ -67,6 +72,9 @@ namespace Sc2CustomOverlays.Windows
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             CloseOverlayWindows(overlaySettings);
+
+            ServerService.NotifyClosing();
+            ClientService.NotifyClosing();
         }
 
         private void CloseOverlayWindows(OverlaySettings os)
@@ -195,6 +203,66 @@ namespace Sc2CustomOverlays.Windows
             control.SetValue(Control.MarginProperty, new Thickness(0, 0, 15, 5));
 
             container.Children.Add(control);
+        }
+
+        private void chkMakeDiscoverable_CheckChanged(object sender, RoutedEventArgs e)
+        {
+            if (chkMakeDiscoverable.IsChecked.HasValue)
+            {
+                lblDiscoverName.Visibility = (chkMakeDiscoverable.IsChecked.Value ? Visibility.Visible : Visibility.Collapsed);
+                txtDiscoverName.Visibility = (chkMakeDiscoverable.IsChecked.Value ? Visibility.Visible : Visibility.Collapsed);
+            }
+        }
+
+        private void btnStartListening_Click(object sender, RoutedEventArgs e)
+        {
+
+            if (!IsListening)
+            {
+                if (chkMakeDiscoverable.IsChecked.Value)
+                {
+                    ServerInfo regServer = new ServerInfo();
+                    regServer.Name = txtDiscoverName.Text;
+                    regServer.Port = ushort.Parse(txtServerPort.Text);
+                    ServerService.StartService(regServer);
+                }
+
+                if (ServerService.IsDiscoverable)
+                    lblServerStatus.Content = "Listening - Discoverable";
+                else
+                    lblServerStatus.Content = "Listening";
+
+                IsListening = true;
+
+            } else {
+
+                if (chkMakeDiscoverable.IsChecked.Value)
+                {
+                    ServerService.StopService();
+                }
+
+                lblServerStatus.Content = "Not Listening";
+
+                IsListening = false;
+            }
+        }
+
+        private void btnDiscoverServers_Click(object sender, RoutedEventArgs e)
+        {
+            
+            FindServers fsWindow = new FindServers();
+            fsWindow.Owner = this;
+            fsWindow.ServerSelected += fsWindow_ServerSelected;
+            fsWindow.ShowDialog();
+
+            
+
+        }
+
+        private void fsWindow_ServerSelected(FindServers.DiscoveredServer server)
+        {
+            txtConnectIPAddress.Text = server.Ip.ToString();
+            txtConnectPort.Text = server.Port.ToString();
         }
 
 
