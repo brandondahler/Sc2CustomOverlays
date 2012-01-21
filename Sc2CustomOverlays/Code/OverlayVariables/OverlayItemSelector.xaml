@@ -5,8 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-            Updated="UpdateHandler"
-             >
+             DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <ov:OverlayVariable.Resources>
         <Style TargetType="{x:Type RadioButton}" BasedOn="{StaticResource {x:Type ToggleButton}}">
             <Setter Property="Margin" Value="1" />
@@ -48,7 +47,28 @@
         </Style>
     </ov:OverlayVariable.Resources>
     
-    <UniformGrid Name="ValueGrid" HorizontalAlignment="Left">
+    <ItemsControl Name="ValueGridControls" ItemsSource="{Binding Path=ItemOptions}">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <UniformGrid Name="ValueGrid" HorizontalAlignment="Left" Columns="{Binding Path=GridColumnsValue}" />
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
         
-    </UniformGrid>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <RadioButton Name="rbOption" Margin="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Content="{Binding}" 
+                             Click="OptionChangedHandler" CommandParameter="{Binding Path=value}" 
+                             IsChecked="{Binding Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                
+                <DataTemplate.Triggers>
+                    <DataTrigger Binding="{Binding Path=ItemHeightHasValue, RelativeSource={RelativeSource FindAncestor, AncestorType=ov:OverlayVariable, AncestorLevel=1 } }" Value="true">
+                        <Setter TargetName="rbOption" Property="Height" Value="{Binding Path=ItemHeightValue, RelativeSource={RelativeSource FindAncestor, AncestorType=ov:OverlayVariable, AncestorLevel=1}}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Path=ItemWidthHasValue, RelativeSource={RelativeSource FindAncestor, AncestorType=ov:OverlayVariable, AncestorLevel=1 } }" Value="true">
+                        <Setter TargetName="rbOption" Property="Width" Value="{Binding Path=ItemWidthValue, RelativeSource={RelativeSource FindAncestor, AncestorType=ov:OverlayVariable, AncestorLevel=1}}" />
+                    </DataTrigger>
+                </DataTemplate.Triggers>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
 </ov:OverlayVariable>

@@ -12,8 +12,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml;
+using System.ComponentModel;
 
 using Sc2CustomOverlays.Code.Exceptions;
+
 
 namespace Sc2CustomOverlays.Code.OverlayVariables
 {
@@ -26,10 +28,10 @@ namespace Sc2CustomOverlays.Code.OverlayVariables
             {
                 get
                 {
-                    if (currentValue.HasValue)
-                        return currentValue.Value.ToString();
+                    if (!currentValue.HasValue)
+                        return defaultValue.ToString();
 
-                    return defaultValue.ToString();
+                    return currentValue.Value.ToString();
                 }
             }
 
@@ -43,14 +45,24 @@ namespace Sc2CustomOverlays.Code.OverlayVariables
                     RaiseUpdated();
                 }
             }
-            private int defaultValue = 0;
+
+            private int _defaultValue = 0;
+            protected int defaultValue
+            {
+                get { return _defaultValue; }
+                set
+                {
+                    _defaultValue = value;
+                    RaiseUpdated();
+                }
+            }
 
         #endregion
 
         public OverlayCounter()
         {
             InitializeComponent();
-            ValueLabel.Content = Value;
+            //RaiseUpdated();
         }
 
         public override void FromXML(XmlNode vNode)
@@ -71,19 +83,24 @@ namespace Sc2CustomOverlays.Code.OverlayVariables
                             break;
                     }
                 } catch (FormatException) {
-                    throw new InvalidXMLValueException("OverlayCounter", vNodeAttrib.Value, InvalidValueReason.FormatIncorrect);
+                    throw new InvalidXMLValueException("OverlayCounter", vNodeAttrib.Value, InvalidXMLValueException.Reason.FormatIncorrect);
                 } catch (OverflowException) {
-                    throw new InvalidXMLValueException("OverlayCounter", vNodeAttrib.Value, InvalidValueReason.Overflow);
+                    throw new InvalidXMLValueException("OverlayCounter", vNodeAttrib.Value, InvalidXMLValueException.Reason.Overflow);
                 }
             }
+        }
+
+        public override void FromNetwork(string value)
+        {
+            currentValue = int.Parse(value);
         }
 
         public override OverlayControlsContainer GetElements()
         {
             OverlayControlsContainer occ = base.GetElements();
             
-            occ.save = null;
-            occ.reset.AddHandler(Button.ClickEvent, new RoutedEventHandler(ClearCountHandler));
+            occ.Save = null;
+            occ.Reset.AddHandler(Button.ClickEvent, new RoutedEventHandler(ClearCountHandler));
 
             return occ;
         }
@@ -110,10 +127,6 @@ namespace Sc2CustomOverlays.Code.OverlayVariables
             currentValue = null;
         }
 
-        private void OverlayVariable_Updated()
-        {
-            ValueLabel.Content = Value;
-        }
     }
 
 }

@@ -5,25 +5,27 @@ using System.Text;
 
 namespace Sc2CustomOverlays.Code.Exceptions
 {
-    public enum OverlayCreationFailure
-    {
-        InvalidXML = 0
-    }
+    
 
-    public class OverlayCreationException : Exception
+    class OverlayCreationException : Exception
     {
+        public enum Reason
+        {
+            InvalidXML = 0
+        }
 
-        public OverlayCreationException(OverlayCreationFailure reason) : base("Unable to create overlay: " + GetMessage(reason))
+        public OverlayCreationException(Reason reason)
+            : base("Unable to create overlay: " + GetMessage(reason))
         {
 
         }
 
 
-        public static string GetMessage(OverlayCreationFailure reason)
+        public static string GetMessage(Reason reason)
         {
             switch (reason)
             {
-                case OverlayCreationFailure.InvalidXML:
+                case Reason.InvalidXML:
                     return "Invalid XML supplied.";
             }
 

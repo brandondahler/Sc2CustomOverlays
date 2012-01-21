@@ -10,7 +10,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Microsoft.Win32;
 using System.Windows.Controls.Primitives;
 
@@ -18,253 +17,274 @@ using Sc2CustomOverlays.Code;
 using Sc2CustomOverlays.Code.OverlayVariables;
 using Sc2CustomOverlays.Code.Exceptions;
 using Sc2CustomOverlays.Code.Networking.Discovery;
-using Sc2CustomOverlays.Code.Networking.Discovery.Shared;
+using Sc2CustomOverlays.Code.Networking.Discovery.DiscoveryShared;
+
 using System.Net;
+using Sc2CustomOverlays.Code.Networking.Control;
+using System.IO;
+
+using FolderBrowserDialog = System.Windows.Forms.FolderBrowserDialog;
+using Sc2CustomOverlays.Code.Networking.StatusConstants;
+
+
 
 namespace Sc2CustomOverlays.Windows
 {
+    public delegate void OverlaySettingsChangedHandler(OverlaySettings newOverlaySettings);
+
     public partial class MainWindow : Window
     {
-        private OverlaySettings _overlaySettings = null;
-        private OverlaySettings overlaySettings
-        {
-            get { return _overlaySettings; }
-            set 
+        private FindServers fsWindow = null;
+
+        #region ConnectError
+            private object ConnectError
             {
-                if (_overlaySettings != null)
-                    CloseOverlayWindows(_overlaySettings);
-                
-                _overlaySettings = value;
+                get { return lblConnectError.Content; }
+                set 
+                {
+                    lblConnectError.Content = value;
+
+                    if (value == "")
+                        lblConnectError.Visibility = System.Windows.Visibility.Collapsed;
+                    else
+                        lblConnectError.Visibility = System.Windows.Visibility.Visible;
+                }
             }
-        }
-        private List<Overlay> overlayWindows = new List<Overlay>();
+        #endregion
+        #region ListenError
+            private object ListenError
+            {
+                get { return lblListenError.Content; }
+                set
+                {
+                    lblListenError.Content = value;
 
-        private bool IsListening = false;
+                    if (value == "")
+                        lblListenError.Visibility = System.Windows.Visibility.Collapsed;
+                    else
+                        lblListenError.Visibility = System.Windows.Visibility.Visible;
+                }
+            }
+        #endregion
 
-        
+
         public MainWindow()
         {
             InitializeComponent();
+
+            // Allow client or server to request the OSSelection menu to appear.
+            ControlServerService.Instance.DisplayOverlaySettingsSelection += new DisplayOSSelectionHandler(ControlService_DisplayOSSelection);
+            ControlClientService.Instance.DisplayOverlaySettingsSelection += new DisplayOSSelectionHandler(ControlService_DisplayOSSelection);
         }
 
-        private void btnShowOverlays_Click(object sender, RoutedEventArgs e)
-        {
+        #region Private Event Handlers
 
-            if (overlayWindows.Count() > 0)
-            {
-                foreach (Overlay o in overlayWindows)
-                {
-                    o.Hide();   
-                }
+            #region Internal Event Handlers
 
-                overlayWindows.Clear();
-            } else {
-                foreach (Overlay o in overlaySettings.GetOverlays())
-                {
-                    o.Show();
-                    overlayWindows.Add(o);
-                }
-            }
+                #region Window
+                    private void Window_Loaded(object sender, RoutedEventArgs e)
+                    {
+                        try
+                        {
+                            OverlaySettings.Instance.Load(new FileInfo(Path.Combine(OverlaySettings.OverlaysBasePath.FullName, "Starboard\\Starboard.xml")));
+                        } catch (OverlayLoadingException ole) {
+                            MessageBox.Show("Overlay Loading Exception: " + ole.Message);
+                        } catch (Exception ex) {
+                            MessageBox.Show("Unhandled exception: " + ex.Message);
+                        }
+                    }
+
+
+                    private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+                    {
+                        OverlaySettings.Instance.Unload();
+
+                        if (fsWindow != null)
+                            fsWindow.Close();
+
+                        DiscoveryServerService.Instance.StopService();
+
+                        ControlClientService.Instance.StopService();
+                        ControlServerService.Instance.StopService();
+                    }
+                #endregion
+
+                #region Menu
+                    private void menuOpen_Click(object sender, RoutedEventArgs e)
+                    {
+
+                        if (ControlClientService.Instance.ConnectedStatus != ConnectionStatus.NotConnected)
+                        {
+                            ControlClientService.Instance.DisplayOpenMenuWithRemoteSettings();
+                        } else {
+                            if (ControlServerService.Instance.ConnectedStatus != ConnectionStatus.NotConnected)
+                            {
+                                ControlServerService.Instance.DisplayOpenMenuWithRemoteSettings();
+                            } else {
+                                SelectOverlaySettings sos = new SelectOverlaySettings() { Owner = this, AvailableSettings = OverlaySettings.GetValidOverlaySettings(), LocalOnly = true };
+                                sos.SettingSelected += new SettingSelectedHandler(SelectOverlaySettings_OverlaySettingSelected);
+                                sos.ShowDialog();
+                            }
+                        }
 
             
-        }
+                    }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            CloseOverlayWindows(overlaySettings);
+                    private void menuExit_Click(object sender, RoutedEventArgs e)
+                    {
+                        this.Close();
+                    }
+                #endregion
 
-            ServerService.NotifyClosing();
-            ClientService.NotifyClosing();
-        }
+                #region Overlay Controls
+                    private void btnShowOverlays_Click(object sender, RoutedEventArgs e)
+                    {
+                        OverlaySettings.Instance.ToggleOverlayVisibility();
+                    }
+                #endregion
 
-        private void CloseOverlayWindows(OverlaySettings os)
-        {
-            foreach (Overlay o in os.GetOverlays())
-            {
-                o.AllowClose = true;
-                o.Close();
-            }
+                #region Client
 
-            overlayWindows.Clear();
-        }
+                    private void btnDiscoverServers_Click(object sender, RoutedEventArgs e)
+                    {
 
-        private void menuOpen_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.DefaultExt = "*.xml";
-            ofd.FileName = "Default.xml";
-            ofd.Filter = "Overlays (*.xml)|*.xml";
-            ofd.InitialDirectory = Environment.CurrentDirectory + "\\Overlays";
-            ofd.Multiselect = false;
-            ofd.ValidateNames = false;
+                        fsWindow = new FindServers() { Owner = this };
+                        fsWindow.ServerSelected += FindServers_ServerSelected;
+                        fsWindow.ShowDialog();
 
-            bool? selected = ofd.ShowDialog();
-            if (selected != null && selected.Value)
-            {                
-                string overlayFile = GetRelativePath(ofd.FileName);
-                try
-                {
-                    overlaySettings = new OverlaySettings(overlayFile);
-                    LoadControls();
-                } catch (OverlayLoadingException ex) {
-                    MessageBox.Show(ex.Message);
-                } catch (Exception ex) {
-                    MessageBox.Show("Unhandled exception: " + ex.Message);
-                }
-            }
-        }
+                        fsWindow = null;
+                    }
 
-        private void menuExit_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
+                    private void btnConnect_Click(object sender, RoutedEventArgs e)
+                    {
+                        ConnectError = "";
 
-        private string GetRelativePath(string fileLocation)
-        {
-            if (fileLocation.IndexOf(Environment.CurrentDirectory + "\\", StringComparison.OrdinalIgnoreCase) >= 0)
-                fileLocation = fileLocation.Substring((Environment.CurrentDirectory + "\\").Length);
+                        if (ControlClientService.Instance.ConnectedStatus == ConnectionStatus.NotConnected)
+                        {
+                            IPAddress ipAddress;
+                            ushort port;
+                            try 
+                            {
+                                ipAddress = IPAddress.Parse(txtConnectIPAddress.Text);
+                            } catch (Exception) {
+                                ConnectError = "Invalid IP address format given.";
+                                return;
+                            }
 
-            return fileLocation;
-        }
+                            try 
+                            {
+                                port = ushort.Parse(txtConnectPort.Text);
+                            } catch (Exception) {
+                                ConnectError = "Invalid port given.";
+                                return;
+                            }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                overlaySettings = new OverlaySettings("Overlays\\Starboard\\Starboard.xml");
-                LoadControls();
-            } catch (OverlayLoadingException ex) {
-                MessageBox.Show(ex.Message);
-            } catch (Exception ex) {
-                MessageBox.Show("Unhandled exception: " + ex.Message);
-            }
-            
-        }
+                            if (pwdConnectPassword.Password == "")
+                            {
+                                ConnectError = "Password is required.";
+                                return;
+                            }
 
-        private void LoadControls()
-        {
-            OverlayControls.Children.Clear();
-            OverlayControls.RowDefinitions.Clear();
+                            ControlClientService.Instance.StartService(ipAddress, port, pwdConnectPassword.Password);
+                        } else {
+                            ControlClientService.Instance.StopService();
+                        }
+                    }
 
-            
-            Dictionary<string, GroupBox> variableGroupBoxes = new Dictionary<string, GroupBox>();
-
-            foreach (KeyValuePair<string, string> variableGroup in overlaySettings.GetVariableGroups())
-            {
-                GroupBox variableGroupBox = new GroupBox();
-                Grid variableGroupBoxGrid = new Grid();
-
-                variableGroupBoxGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-                variableGroupBoxGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-                variableGroupBoxGrid.ColumnDefinitions.Add(new ColumnDefinition() { });
-                variableGroupBoxGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-                variableGroupBoxGrid.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
-                variableGroupBox.Content = variableGroupBoxGrid;
-
-                variableGroupBox.Header = variableGroup.Value;
-                variableGroupBox.SetValue(Grid.ColumnSpanProperty, 5);
-                variableGroupBox.SetValue(Grid.RowProperty, OverlayControls.RowDefinitions.Count);
+                #endregion
                 
+                #region Server
 
-                OverlayControls.RowDefinitions.Add(new RowDefinition());
-                OverlayControls.Children.Add(variableGroupBox);
+                    private void chkMakeDiscoverable_CheckChanged(object sender, RoutedEventArgs e)
+                    {
+                        if (chkMakeDiscoverable.IsChecked.HasValue)
+                        {
+                            lblDiscoverName.Visibility = (chkMakeDiscoverable.IsChecked.Value ? Visibility.Visible : Visibility.Collapsed);
+                            txtDiscoverName.Visibility = (chkMakeDiscoverable.IsChecked.Value ? Visibility.Visible : Visibility.Collapsed);
+                        }
+                    }
 
-                variableGroupBoxes.Add(variableGroup.Key, variableGroupBox);
-            }
+                    private void btnStartListening_Click(object sender, RoutedEventArgs e)
+                    {
+                        ListenError = "";
+                        if (ControlServerService.Instance.ListeningStatus == ListenStatus.NotListening)
+                        {
+                            ushort port;
 
-            foreach (OverlayVariable ov in overlaySettings.GetVariables())
-            {
-                Grid container = OverlayControls;
+                            try
+                            {
+                                port = ushort.Parse(txtServerPort.Text);
+                            } catch (Exception) {
+                                ListenError = "Invalid port given.";
+                                return;
+                            }
 
-                if (ov.Group != null && variableGroupBoxes.ContainsKey(ov.Group))
-                    container = (Grid) variableGroupBoxes[ov.Group].Content;
+                            if (pwdServerPassword.Password == "")
+                            {
+                                ListenError = "Password is required.";
+                                return;
+                            }
 
-                OverlayControlsContainer occ = ov.GetElements();
-                int rowNum = container.RowDefinitions.Count;
+                            if (chkMakeDiscoverable.IsChecked.Value)
+                                DiscoveryServerService.Instance.StartService(new DiscoveryServerInfo() { Name = txtDiscoverName.Text, Port = port });
 
-                container.RowDefinitions.Add(new RowDefinition());
+                            ControlServerService.Instance.StartService(port, pwdServerPassword.Password);
 
-                AddOverlayControl(container, occ.label, 0, rowNum);
-                AddOverlayControl(container, occ.modifier, 1, rowNum);
-                AddOverlayControl(container, occ.save, 3, rowNum);
-                AddOverlayControl(container, occ.reset, 4, rowNum);
+                        } else {
 
-            }
-        }
+                            if (DiscoveryServerService.Instance.Discoverable)
+                                DiscoveryServerService.Instance.StopService();
 
-        private void AddOverlayControl(Grid container, UIElement control, int column, int row)
-        {
-            if (control == null)
-                return;
+                            ControlServerService.Instance.StopService();
+                        }
+                    }
 
-            control.SetValue(Grid.ColumnProperty, column);
-            control.SetValue(Grid.RowProperty, row);
+                #endregion
 
-            control.SetValue(Control.MarginProperty, new Thickness(0, 0, 15, 5));
+            #endregion
 
-            container.Children.Add(control);
-        }
+            #region External Event Handlers
 
-        private void chkMakeDiscoverable_CheckChanged(object sender, RoutedEventArgs e)
-        {
-            if (chkMakeDiscoverable.IsChecked.HasValue)
-            {
-                lblDiscoverName.Visibility = (chkMakeDiscoverable.IsChecked.Value ? Visibility.Visible : Visibility.Collapsed);
-                txtDiscoverName.Visibility = (chkMakeDiscoverable.IsChecked.Value ? Visibility.Visible : Visibility.Collapsed);
-            }
-        }
-
-        private void btnStartListening_Click(object sender, RoutedEventArgs e)
-        {
-
-            if (!IsListening)
-            {
-                if (chkMakeDiscoverable.IsChecked.Value)
+                void SelectOverlaySettings_OverlaySettingSelected(AvailableOverlaySetting selectedSetting)
                 {
-                    ServerInfo regServer = new ServerInfo();
-                    regServer.Name = txtDiscoverName.Text;
-                    regServer.Port = ushort.Parse(txtServerPort.Text);
-                    ServerService.StartService(regServer);
+                    if (selectedSetting.Local != true)
+                        throw new ArgumentException();
+
+                    try
+                    {
+                        OverlaySettings.Instance.Load(new FileInfo(Path.Combine(OverlaySettings.OverlaysBasePath.FullName, selectedSetting.Path)));
+                    } catch (OverlayLoadingException ole) {
+                        MessageBox.Show("Overlay Loading Exception: " + ole.Message);
+                    } catch (Exception ex) {
+                        MessageBox.Show("Unhandled exception: " + ex.Message);
+                    }
                 }
 
-                if (ServerService.IsDiscoverable)
-                    lblServerStatus.Content = "Listening - Discoverable";
-                else
-                    lblServerStatus.Content = "Listening";
-
-                IsListening = true;
-
-            } else {
-
-                if (chkMakeDiscoverable.IsChecked.Value)
+                private void FindServers_ServerSelected(DiscoveredServer server)
                 {
-                    ServerService.StopService();
+                    txtConnectIPAddress.Text = server.Ip.ToString();
+                    txtConnectPort.Text = server.Port.ToString();
                 }
 
-                lblServerStatus.Content = "Not Listening";
+                private void ControlService_DisplayOSSelection(List<AvailableOverlaySetting> remoteSettings, SettingSelectedHandler handler)
+                {
+                    // Must be called via dispatcher, this event is called from a network thread
+                    Dispatcher.Invoke(new Action(delegate()
+                        {
+                            SelectOverlaySettings sosWindow = new SelectOverlaySettings() { AvailableSettings = remoteSettings, Owner = this };
 
-                IsListening = false;
-            }
-        }
+                            if (handler != null)
+                                sosWindow.SettingSelected += handler;
 
-        private void btnDiscoverServers_Click(object sender, RoutedEventArgs e)
-        {
-            
-            FindServers fsWindow = new FindServers();
-            fsWindow.Owner = this;
-            fsWindow.ServerSelected += fsWindow_ServerSelected;
-            fsWindow.ShowDialog();
+                            sosWindow.AvailableSettings.AddRange(OverlaySettings.GetValidOverlaySettings());
+                            sosWindow.ShowDialog();
+                        }
+                    ));
+                }  
 
-            
+            #endregion
 
-        }
-
-        private void fsWindow_ServerSelected(FindServers.DiscoveredServer server)
-        {
-            txtConnectIPAddress.Text = server.Ip.ToString();
-            txtConnectPort.Text = server.Port.ToString();
-        }
-
+        #endregion
 
     }
 }

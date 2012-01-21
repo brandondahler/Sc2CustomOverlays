@@ -20,7 +20,6 @@ namespace Sc2CustomOverlays.Code.OverlayVariables
     /// </summary>
     public partial class OverlayString : OverlayVariable
     {
-        
 
         public override string Value
         {
@@ -44,7 +43,16 @@ namespace Sc2CustomOverlays.Code.OverlayVariables
             }
         }
 
-        protected string defaultValue = "";
+        private string _defaultValue = "";
+        protected string defaultValue
+        {
+            get { return _defaultValue; }
+            set
+            {
+                _defaultValue = value;
+                RaiseUpdated();
+            }
+        }
 
         public OverlayString()
         {
@@ -69,14 +77,17 @@ namespace Sc2CustomOverlays.Code.OverlayVariables
             }
         }
 
+        public override void FromNetwork(string value)
+        {
+            currentValue = value;
+        }
+
         public override OverlayControlsContainer GetElements()
         {
             OverlayControlsContainer occ = base.GetElements();
 
-            ValueTextBox.Text = Value;
-
-            occ.save.AddHandler(Button.ClickEvent, new RoutedEventHandler(SaveUpdateHandler));
-            occ.reset.AddHandler(Button.ClickEvent, new RoutedEventHandler(ClearUpdateHandler));
+            occ.Save.AddHandler(Button.ClickEvent, new RoutedEventHandler(SaveUpdateHandler));
+            occ.Reset.AddHandler(Button.ClickEvent, new RoutedEventHandler(ClearUpdateHandler));
 
             return occ;
         }
@@ -89,7 +100,6 @@ namespace Sc2CustomOverlays.Code.OverlayVariables
         private void ClearUpdateHandler(object sender, RoutedEventArgs rea)
         {
             currentValue = null;
-            ValueTextBox.Text = Value;
         }
 
     }

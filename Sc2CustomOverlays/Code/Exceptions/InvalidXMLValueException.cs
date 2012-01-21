@@ -5,33 +5,35 @@ using System.Text;
 
 namespace Sc2CustomOverlays.Code.Exceptions
 {
-    public enum InvalidValueReason
-    {
-        FormatIncorrect = 0,
-        Overflow,
-        NotSpecified,
-        InvalidValue
-    }
 
-    public class InvalidXMLValueException : Exception
+    class InvalidXMLValueException : Exception
     {
-        public InvalidXMLValueException(string xmlNode, string xmlAttribute, InvalidValueReason reason ) : base(xmlNode + " :: " + xmlAttribute + GetMessage(reason)) { }
-        
-        protected static string GetMessage(InvalidValueReason reason)
+        public enum Reason
+        {
+            FormatIncorrect = 0,
+            Overflow,
+            NotSpecified,
+            InvalidValue
+        }
+
+        public InvalidXMLValueException(string xmlNode, string xmlAttribute, Reason reason) 
+            : base(xmlNode + " :: " + xmlAttribute + GetMessage(reason)) { }
+
+        protected static string GetMessage(Reason reason)
         {
 
             switch (reason)
             {
-                case InvalidValueReason.FormatIncorrect:
+                case Reason.FormatIncorrect:
                     return " is in an invalid format.";
 
-                case InvalidValueReason.Overflow:
+                case Reason.Overflow:
                     return " is too large to be parsed.";
 
-                case InvalidValueReason.NotSpecified:
+                case Reason.NotSpecified:
                     return " was not assigned a value.";
 
-                case InvalidValueReason.InvalidValue:
+                case Reason.InvalidValue:
                     return " has an invalid value.";
             }
 

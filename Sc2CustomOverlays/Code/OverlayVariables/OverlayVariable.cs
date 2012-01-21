@@ -6,15 +6,19 @@ using System.Windows.Controls;
 using System.Xml;
 using System.Windows;
 using Sc2CustomOverlays.Code.Exceptions;
+using System.ComponentModel;
+using System.IO;
 
 namespace Sc2CustomOverlays.Code.OverlayVariables
 {
-    public delegate void UpdatedEventHandler();
+    public delegate void VariableUpdatedHandler(OverlayVariable sender);
 
-    public partial class OverlayVariable : UserControl
+    public partial class OverlayVariable : UserControl, INotifyPropertyChanged
     {
 
-        public event UpdatedEventHandler Updated;
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public event VariableUpdatedHandler VariableUpdated;
         public string VariableName { get { return name; } }
         public string Label
         {
@@ -26,12 +30,13 @@ namespace Sc2CustomOverlays.Code.OverlayVariables
                 return label;
             }
         }
-        public string Group { get { return group; } }
+        public OverlayVariableGroup Group { get { return group; } }
         public virtual string Value { get { throw new NotImplementedException(); } }
+        private string lastValue = null;
 
         protected string name = null;
         protected string label = null;
-        protected string group = null;
+        protected OverlayVariableGroup group = null;
 
         public virtual void FromXML(XmlNode vNode)
         {
@@ -46,32 +51,61 @@ namespace Sc2CustomOverlays.Code.OverlayVariables
                         label = vNodeAttrib.Value;
                         break;
                     case "group":
-                        group = vNodeAttrib.Value;
+                        string groupName = vNodeAttrib.Value;
+
+                        if (OverlaySettings.Instance.VariableGroupsLookup.ContainsKey(groupName))
+                            group = OverlaySettings.Instance.VariableGroupsLookup[groupName];
+
                         break;
                 }
             }
+
+            if (group == null)
+                group = OverlaySettings.Instance.VariableGroupsLookup[""];
+        }
+
+        public virtual void FromNetwork(string value)
+        {
+            throw new NotImplementedException();
         }
 
         public virtual OverlayControlsContainer GetElements()
         {
             OverlayControlsContainer occ = new OverlayControlsContainer();
 
-            occ.label = new Label() { Content = Label };
-            occ.save = new Button() { Content = "Save", Padding = new Thickness(15, 0, 15, 0) };
-            occ.reset = new Button() { Content = "Reset", Padding = new Thickness(15, 0, 15, 0) };
+            occ.Label = new Label() { Content = Label };
+            occ.Save = new Button() { Content = "Save", Padding = new Thickness(15, 0, 15, 0) };
+            occ.Reset = new Button() { Content = "Reset", Padding = new Thickness(15, 0, 15, 0) };
 
-            occ.modifier = this;
+            occ.Modifier = this;
+
+            occ.Group = group;
 
             return occ;
         }
 
         protected void RaiseUpdated()
         {
-            if (Updated != null)
-                Updated();
+            // Only raise updated if value has actually changed.
+            if (lastValue == null || lastValue != Value)
+            {
+                RaisePropertyChanged("Value");
+
+                if (VariableUpdated != null)
+                    VariableUpdated(this);
+
+                lastValue = Value;
+            }
         }
 
-        public static Dictionary<string, OverlayVariable> ProcessVariables(XmlNode vlNode, IEnumerable<string> validGroups, string startDirectory)
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+
+        public static Dictionary<string, OverlayVariable> ProcessVariables(XmlNode vlNode, DirectoryInfo startDirectory)
         {
             Dictionary<string, OverlayVariable> variableDictionary = new Dictionary<string, OverlayVariable>();
 
@@ -93,7 +127,7 @@ namespace Sc2CustomOverlays.Code.OverlayVariables
                         break;
 
                     case "ItemSelector":
-                        ov = new OverlayItemSelector(startDirectory);
+                        ov = new OverlayItemSelector(startDirectory.FullName + "\\");
                         break;
                 }
 
@@ -104,11 +138,8 @@ namespace Sc2CustomOverlays.Code.OverlayVariables
                         ov.FromXML(vNode);
                     } catch (InvalidXMLValueException ex) {
                         MessageBox.Show(ex.Message);
-                        throw new VariableParseException(VariableParseFailure.InvalidXML);
+                        throw new VariableParseException(VariableParseException.Reason.InvalidXML);
                     }
-
-                    if (ov.group != null && !validGroups.Contains(ov.group))
-                        ov.group = null;
 
                     try
                     {
@@ -116,9 +147,9 @@ namespace Sc2CustomOverlays.Code.OverlayVariables
                     } catch (ArgumentException) {
                         if (ov.VariableName == null)
                         {
-                            throw new VariableParseException(VariableParseFailure.NullVariable);
+                            throw new VariableParseException(VariableParseException.Reason.NullVariable);
                         } else {
-                            throw new VariableParseException(VariableParseFailure.DuplicateVariable);
+                            throw new VariableParseException(VariableParseException.Reason.DuplicateVariable);
                         }
                     }
                 }

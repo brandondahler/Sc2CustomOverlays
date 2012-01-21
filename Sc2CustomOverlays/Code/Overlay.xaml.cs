@@ -14,18 +14,22 @@ using Sc2CustomOverlays.Code.OverlayItems;
 using Sc2CustomOverlays.Code.OverlayVariables;
 using System.Xml;
 using Sc2CustomOverlays.Code.Exceptions;
+using System.IO;
+using System.ComponentModel;
 
 namespace Sc2CustomOverlays.Code
 {
     /// <summary>
     /// Interaction logic for Overlay.xaml
     /// </summary>
-    public partial class Overlay : Window
+    public partial class Overlay : Window, INotifyPropertyChanged
     {
         public bool AllowClose = false;
         public bool AllowDrag = false;
 
-        protected string startDirectory = "/";
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected string startDirectory;
 
         protected Thickness? margin = null;
         protected HorizontalAlignment hAlign = HorizontalAlignment.Center;
@@ -34,11 +38,11 @@ namespace Sc2CustomOverlays.Code
         private List<OverlayItem> overlayItems = new List<OverlayItem>();
         private Dictionary<string, OverlayVariable> variableDictionary = null;
 
-        public Overlay(string startDir)
+        public Overlay(DirectoryInfo startDir)
         {
             InitializeComponent();
 
-            startDirectory = startDir;
+            startDirectory = startDir.FullName + "\\";
         }
 
         public List<FrameworkElement> GetOverlayControls()
@@ -75,25 +79,29 @@ namespace Sc2CustomOverlays.Code
                                 vAlign = (VerticalAlignment)Enum.Parse(typeof(VerticalAlignment), xAttrib.Value);
                                 break;
 
+                            case "background":
+                                Background = new SolidColorBrush((Color) ColorConverter.ConvertFromString(xAttrib.Value));
+                                break;
+                            
+                            case "width":
+                                Width = double.Parse(xAttrib.Value);
+                                break;
+
+                            case "height":
+                                Height = double.Parse(xAttrib.Value);
+                                break;
+
                         }
-                    }
-                    catch (FormatException)
-                    {
-                        throw new InvalidXMLValueException("Overlay", xAttrib.LocalName, InvalidValueReason.FormatIncorrect);
-                    }
-                    catch (ArgumentNullException)
-                    {
-                        throw new InvalidXMLValueException("Overlay", xAttrib.LocalName, InvalidValueReason.NotSpecified);
-                    }
-                    catch (ArgumentException)
-                    {
-                        throw new InvalidXMLValueException("Overlay", xAttrib.LocalName, InvalidValueReason.InvalidValue);
-                    }
-                    catch (OverflowException)
-                    {
-                        throw new InvalidXMLValueException("Overlay", xAttrib.LocalName, InvalidValueReason.Overflow);
+                    } catch (FormatException) {
+                        throw new InvalidXMLValueException("Overlay", xAttrib.LocalName, InvalidXMLValueException.Reason.FormatIncorrect);
+                    } catch (ArgumentNullException) {
+                        throw new InvalidXMLValueException("Overlay", xAttrib.LocalName, InvalidXMLValueException.Reason.NotSpecified);
+                    } catch (ArgumentException) {
+                        throw new InvalidXMLValueException("Overlay", xAttrib.LocalName, InvalidXMLValueException.Reason.InvalidValue);
+                    } catch (OverflowException) {
+                        throw new InvalidXMLValueException("Overlay", xAttrib.LocalName, InvalidXMLValueException.Reason.Overflow);
                     } catch (Exception) {
-                        throw new InvalidXMLValueException("Overlay", xAttrib.LocalName, InvalidValueReason.InvalidValue);
+                        throw new InvalidXMLValueException("Overlay", xAttrib.LocalName, InvalidXMLValueException.Reason.InvalidValue);
                     }
                 }
 
@@ -101,7 +109,22 @@ namespace Sc2CustomOverlays.Code
             catch (InvalidXMLValueException ex)
             {
                 MessageBox.Show(ex.Message);
-                throw new OverlayCreationException(OverlayCreationFailure.InvalidXML);
+                throw new OverlayCreationException(OverlayCreationException.Reason.InvalidXML);
+            }
+
+            if (!double.IsNaN(Width) || !double.IsNaN(Height))
+            {
+                if (!double.IsNaN(Width) && !double.IsNaN(Height))
+                {
+                    SizeToContent = System.Windows.SizeToContent.Manual;
+                } else {
+                    if (double.IsNaN(Width) && !double.IsNaN(Height))
+                        SizeToContent = System.Windows.SizeToContent.Width;
+                    else
+                        SizeToContent = System.Windows.SizeToContent.Height;
+                }
+            } else {
+                SizeToContent = System.Windows.SizeToContent.WidthAndHeight;
             }
 
             foreach (XmlNode xNode in xOverlayNode.ChildNodes)
@@ -130,7 +153,7 @@ namespace Sc2CustomOverlays.Code
                     catch (InvalidXMLValueException ex)
                     {
                         MessageBox.Show(ex.Message);
-                        throw new OverlayCreationException(OverlayCreationFailure.InvalidXML);
+                        throw new OverlayCreationException(OverlayCreationException.Reason.InvalidXML);
                     }
                     overlayItems.Add(oi);
                 }
@@ -146,10 +169,13 @@ namespace Sc2CustomOverlays.Code
 
         public void UpdateVariables()
         {
-            foreach (OverlayItem oi in overlayItems)
-            {
-                oi.UpdateVariables(variableDictionary);
-            }
+            // Be sure to run this on the dispathcher thread
+            this.Dispatcher.Invoke(new Action(delegate()
+                {
+                    foreach (OverlayItem oi in overlayItems)
+                        oi.UpdateVariables(variableDictionary);
+                })
+            );
         }
 
         public void ReloadOverlayControls()
@@ -223,5 +249,10 @@ namespace Sc2CustomOverlays.Code
             RepositionWindow();
         }
 
+        private void RaisePropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

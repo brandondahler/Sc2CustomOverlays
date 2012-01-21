@@ -9,17 +9,34 @@ using Sc2CustomOverlays.Code.OverlayVariables;
 namespace Sc2CustomOverlays.Code
 {
 
-    class VariableEvaluator
+    public class VariableEvaluator
     {
-        public Dictionary<string, OverlayVariable> VariableDictionary = null;
+        // Call this on a string of text with a given variable dictionary to recursively evaluate the final value of the string.
+        public static string ReplaceVariables(string text, Dictionary<string, OverlayVariable> variableDictionary)
+        {
+            Regex rVariables = new Regex("#(.*?)#");
+            MatchCollection variables = rVariables.Matches(text);
 
-        public VariableEvaluator(Dictionary<string, OverlayVariable> variableDict)
+            VariableEvaluator ve = new VariableEvaluator(variableDictionary);
+            text = rVariables.Replace(text, new MatchEvaluator(ve.EvaluateMatch));
+
+            return text;
+        }
+
+        //
+        // This class can only be instantiatied through the static function above.
+        //
+
+        private Dictionary<string, OverlayVariable> VariableDictionary = null;
+
+        private VariableEvaluator(Dictionary<string, OverlayVariable> variableDict)
         {
             VariableDictionary = variableDict;
         }
 
 
-        public string EvaluateMatch(Match m)
+        // Evaluate each match found, recursively replacing variables.  To be used as a MatchEvaluator.
+        private string EvaluateMatch(Match m)
         {
             string varName = m.Groups[1].Value;
 
@@ -34,25 +51,12 @@ namespace Sc2CustomOverlays.Code
                     return ReplaceVariables((string) VariableDictionary[varName].Value, newDictionary);
                 }
 
-            }
-            else
-            {
+            } else {
                 // Only in case of ##
                 return "#";
             }
 
             return m.Value;
-        }
-
-        public static string ReplaceVariables(string text, Dictionary<string, OverlayVariable> variableDictionary)
-        {
-            Regex rVariables = new Regex("#(.*?)#");
-            MatchCollection variables = rVariables.Matches(text);
-
-            VariableEvaluator ve = new VariableEvaluator(variableDictionary);
-            text = rVariables.Replace(text, new MatchEvaluator(ve.EvaluateMatch));
-
-            return text;
         }
 
     }

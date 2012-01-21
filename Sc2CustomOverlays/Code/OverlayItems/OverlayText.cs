@@ -79,7 +79,7 @@ namespace Sc2CustomOverlays.Code.OverlayItems
                             textColor = originalColor;
 
                             if (ColorConverter.ConvertFromString(xAttrib.Value) == null)
-                                throw new InvalidXMLValueException("OverlayText", xAttrib.LocalName, InvalidValueReason.InvalidValue);
+                                throw new InvalidXMLValueException("OverlayText", xAttrib.LocalName, InvalidXMLValueException.Reason.InvalidValue);
 
                             break;
                         case "size":
@@ -90,13 +90,13 @@ namespace Sc2CustomOverlays.Code.OverlayItems
                             break;
                     }
                 } catch (FormatException) {
-                    throw new InvalidXMLValueException("OverlayText", xAttrib.LocalName, InvalidValueReason.FormatIncorrect);
+                    throw new InvalidXMLValueException("OverlayText", xAttrib.LocalName, InvalidXMLValueException.Reason.FormatIncorrect);
                 } catch (ArgumentNullException) {
-                    throw new InvalidXMLValueException("OverlayText", xAttrib.LocalName, InvalidValueReason.NotSpecified);
+                    throw new InvalidXMLValueException("OverlayText", xAttrib.LocalName, InvalidXMLValueException.Reason.NotSpecified);
                 } catch (ArgumentException) {
-                    throw new InvalidXMLValueException("OverlayText", xAttrib.LocalName, InvalidValueReason.InvalidValue);
+                    throw new InvalidXMLValueException("OverlayText", xAttrib.LocalName, InvalidXMLValueException.Reason.InvalidValue);
                 } catch (OverflowException) {
-                    throw new InvalidXMLValueException("OverlayText", xAttrib.LocalName, InvalidValueReason.Overflow);
+                    throw new InvalidXMLValueException("OverlayText", xAttrib.LocalName, InvalidXMLValueException.Reason.Overflow);
                 }
 
             }

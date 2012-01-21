@@ -4,7 +4,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             mc:Ignorable="d"
-             Updated="UpdateSelection">
-    <ComboBox Name="ValueDropDown" Width="150" HorizontalAlignment="Left" />
+             mc:Ignorable="d" VariableUpdated="UpdateSelection">
+    <ComboBox Name="ValueDropDown" Width="150" HorizontalAlignment="Left" ItemsSource="{Binding Path=ItemOptions}" 
+              SelectedValuePath="{Binding Path=Value, UpdateSourceTrigger=PropertyChanged}" />
 </ov:OverlayVariable>

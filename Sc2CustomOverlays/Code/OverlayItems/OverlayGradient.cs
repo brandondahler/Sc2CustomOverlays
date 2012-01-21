@@ -64,13 +64,13 @@ namespace Sc2CustomOverlays.Code.OverlayItems
                     gc.color = xColor.Attributes.GetNamedItem("color").Value;
                     gc.offset = double.Parse(xColor.Attributes.GetNamedItem("offset").Value);
                 } catch (FormatException) {
-                    throw new InvalidXMLValueException("OverlayGradient:Color", "offset", InvalidValueReason.FormatIncorrect);
+                    throw new InvalidXMLValueException("OverlayGradient:Color", "offset", InvalidXMLValueException.Reason.FormatIncorrect);
                 } catch (ArgumentNullException) {
-                    throw new InvalidXMLValueException("OverlayGradient:Color", "offset", InvalidValueReason.NotSpecified);
+                    throw new InvalidXMLValueException("OverlayGradient:Color", "offset", InvalidXMLValueException.Reason.NotSpecified);
                 } catch (OverflowException) {
-                    throw new InvalidXMLValueException("OverlayGradient:Color", "offset", InvalidValueReason.Overflow);
+                    throw new InvalidXMLValueException("OverlayGradient:Color", "offset", InvalidXMLValueException.Reason.Overflow);
                 } catch (Exception) {
-                    throw new InvalidXMLValueException("OverlayGradient:Color", "color or offset", InvalidValueReason.NotSpecified);
+                    throw new InvalidXMLValueException("OverlayGradient:Color", "color or offset", InvalidXMLValueException.Reason.NotSpecified);
                 }
 
                 gc.transparent = null;
@@ -86,9 +86,9 @@ namespace Sc2CustomOverlays.Code.OverlayItems
                                 break;
                         }
                     } catch (FormatException) {
-                        throw new InvalidXMLValueException("OverlayGradient:Color", "transparent", InvalidValueReason.FormatIncorrect);
+                        throw new InvalidXMLValueException("OverlayGradient:Color", "transparent", InvalidXMLValueException.Reason.FormatIncorrect);
                     } catch (ArgumentNullException) {
-                        throw new InvalidXMLValueException("OverlayGradient:Color", "transparent", InvalidValueReason.NotSpecified);
+                        throw new InvalidXMLValueException("OverlayGradient:Color", "transparent", InvalidXMLValueException.Reason.NotSpecified);
                     }
                 }
 
@@ -113,11 +113,11 @@ namespace Sc2CustomOverlays.Code.OverlayItems
 
                     }
                 } catch (FormatException) {
-                    throw new InvalidXMLValueException("OverlayGradient", xAttrib.LocalName, InvalidValueReason.FormatIncorrect);
+                    throw new InvalidXMLValueException("OverlayGradient", xAttrib.LocalName, InvalidXMLValueException.Reason.FormatIncorrect);
                 } catch (ArgumentNullException) {
-                    throw new InvalidXMLValueException("OverlayGradient", xAttrib.LocalName, InvalidValueReason.NotSpecified);
+                    throw new InvalidXMLValueException("OverlayGradient", xAttrib.LocalName, InvalidXMLValueException.Reason.NotSpecified);
                 } catch (OverflowException) {
-                    throw new InvalidXMLValueException("OverlayGradient", xAttrib.LocalName, InvalidValueReason.Overflow);
+                    throw new InvalidXMLValueException("OverlayGradient", xAttrib.LocalName, InvalidXMLValueException.Reason.Overflow);
                 }
             }
 

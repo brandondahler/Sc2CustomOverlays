@@ -8,9 +8,10 @@ namespace Sc2CustomOverlays.Code
 {
     public class OverlayControlsContainer
     {
-        public UIElement label = null;
-        public UIElement modifier = null;
-        public UIElement save = null;
-        public UIElement reset = null;
+        public UIElement Label { get; set; }
+        public UIElement Modifier { get; set; }
+        public UIElement Save { get; set; }
+        public UIElement Reset { get; set; }
+        public OverlayVariableGroup Group { get; set; }
     }
 }

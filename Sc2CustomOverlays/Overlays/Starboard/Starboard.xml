@@ -51,6 +51,7 @@ Visit https://github.com/ascendedguard/starboard-sc2 for access to the Starboard
             <Option alt="None" color="Transparent" value="#00FFFFFF" />
             <Option alt="Red" color="#FF0000" value="#88FF0000" />
             <Option alt="Green" color="#00CC00" value="#8800CC00" />
+            <Option alt="Blue" color="#0000FF" value="#880000FF" />
         </ItemSelector>
 
         <String name="Player2" label="Name" default="Player 2" group="Player2" />
@@ -65,6 +66,7 @@ Visit https://github.com/ascendedguard/starboard-sc2 for access to the Starboard
             <Option alt="None" color="Transparent" value="#00FFFFFF" />
             <Option alt="Red" color="#FF0000" value="#88FF0000" />
             <Option alt="Green" color="#00CC00" value="#8800CC00" />
+            <Option alt="Blue" color="#0000FF" value="#880000FF" />
         </ItemSelector>
     </Variables>
 

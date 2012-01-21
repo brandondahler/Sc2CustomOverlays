@@ -5,31 +5,34 @@ using System.Text;
 
 namespace Sc2CustomOverlays.Code.Exceptions
 {
-    public enum VariableParseFailure
-    {
-        InvalidXML = 0,
-        DuplicateVariable,
-        NullVariable
-    }
+    
 
-    public class VariableParseException : Exception
+    class VariableParseException : Exception
     {
-        public VariableParseException(VariableParseFailure reason) : base("Unable to process variables: " + GetMessage(reason))
+        public enum Reason
+        {
+            InvalidXML = 0,
+            DuplicateVariable,
+            NullVariable
+        }
+
+        public VariableParseException(Reason reason)
+            : base("Unable to process variables: " + GetMessage(reason))
         {
 
         }
 
-        private static string GetMessage(VariableParseFailure reason)
+        private static string GetMessage(Reason reason)
         {
             switch (reason)
             {
-                case VariableParseFailure.InvalidXML:
+                case Reason.InvalidXML:
                     return "Invalid XML supplied.";
 
-                case VariableParseFailure.DuplicateVariable:
+                case Reason.DuplicateVariable:
                     return "Two or more variables with same name.";
 
-                case VariableParseFailure.NullVariable:
+                case Reason.NullVariable:
                     return "One or more variables with no name.";
             }
 

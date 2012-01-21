@@ -2,8 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Overlay" ShowInTaskbar="false" Topmost="True" WindowStyle="None" ResizeMode="NoResize" MouseLeftButtonDown="Window_MouseLeftButtonDown"
-        SizeToContent="WidthAndHeight" Closing="Window_Closing" AllowsTransparency="True" Background="Transparent" IsVisibleChanged="Window_IsVisibleChanged" 
-        ContentRendered="Window_ContentRendered" >
+        Closing="Window_Closing" AllowsTransparency="True" IsVisibleChanged="Window_IsVisibleChanged" 
+        ContentRendered="Window_ContentRendered" Background="Transparent">
     <Grid Name="overlayGrid">
 
     </Grid>

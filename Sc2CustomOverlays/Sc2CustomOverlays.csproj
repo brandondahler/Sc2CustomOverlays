@@ -75,6 +75,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Windows\SelectOverlaySettings.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Code\Overlay.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -99,7 +103,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Windows\FindServers.xaml">
+    <Page Include="Code\Networking\Discovery\FindServers.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -115,9 +119,33 @@
     <Compile Include="Code\Exceptions\OverlayCreationException.cs" />
     <Compile Include="Code\Exceptions\OverlayLoadingException.cs" />
     <Compile Include="Code\Exceptions\VariableParseException.cs" />
-    <Compile Include="Code\Networking\Discovery\ClientService.cs" />
-    <Compile Include="Code\Networking\Discovery\Shared.cs" />
-    <Compile Include="Code\Networking\Discovery\ServerService.cs" />
+    <Compile Include="Code\AvailableOverlaySetting.cs" />
+    <Compile Include="Code\Networking\Control\Commands\AvailableSettingsRequestCommand.cs" />
+    <Compile Include="Code\Networking\Control\CommandException.cs" />
+    <Compile Include="Code\Networking\Control\Commands\CloseCommand.cs" />
+    <Compile Include="Code\Networking\Control\ControlCommand.cs" />
+    <Compile Include="Code\Networking\Control\Commands\AvailableSettingsResponseCommand.cs" />
+    <Compile Include="Code\Networking\Control\Commands\DownloadSettingResponseCommand.cs" />
+    <Compile Include="Code\Networking\Control\Commands\DownloadSettingRequestCommand.cs" />
+    <Compile Include="Code\Networking\Control\Commands\OverlaySettingSelectCommand.cs" />
+    <Compile Include="Code\Networking\Control\Commands\OverlaySettingLoadedCommand.cs" />
+    <Compile Include="Code\Networking\Control\Commands\UpdateVariableCommand.cs" />
+    <Compile Include="Code\Networking\Control\ControlClientService.cs" />
+    <Compile Include="Code\Networking\Control\ControlServerService.cs" />
+    <Compile Include="Code\Networking\Control\ControlService.cs" />
+    <Compile Include="Code\Networking\Encryption\EncryptedTcpClient.cs" />
+    <Compile Include="Code\Networking\Encryption\EncryptedTcpListener.cs" />
+    <Compile Include="Code\Networking\StatusConstants.cs" />
+    <Compile Include="Code\OverlayVariableGroup.cs" />
+    <Compile Include="Windows\SelectOverlaySettings.xaml.cs">
+      <DependentUpon>SelectOverlaySettings.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Code\Networking\Discovery\DiscoveryClientService.cs" />
+    <Compile Include="Code\Networking\Discovery\DiscoveryShared.cs" />
+    <Compile Include="Code\Networking\Discovery\DiscoveryServerService.cs" />
+    <Compile Include="Code\Networking\Encryption\EncryptedNetworkStream.cs" />
+    <Compile Include="Code\Networking\Encryption\EncryptedNetworkStreamException.cs" />
+    <Compile Include="Code\Networking\SerializedString.cs" />
     <Compile Include="Code\Overlay.xaml.cs">
       <DependentUpon>Overlay.xaml</DependentUpon>
     </Compile>
@@ -141,7 +169,7 @@
     </Compile>
     <Compile Include="Code\OverlayVariables\OverlayVariable.cs" />
     <Compile Include="Code\VariableEvaluator.cs" />
-    <Compile Include="Windows\FindServers.xaml.cs">
+    <Compile Include="Code\Networking\Discovery\FindServers.xaml.cs">
       <DependentUpon>FindServers.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\MainWindow.xaml.cs">
@@ -205,7 +233,9 @@
     <Resource Include="Overlays\Starboard\TerranLogo.png" />
     <Resource Include="Overlays\Starboard\ZergLogo.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Overlays\SimpleOverlay\Simple.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy "..\Sc2CustomOverlays\Overlays" "Overlays\" /S /E /Y</PostBuildEvent>

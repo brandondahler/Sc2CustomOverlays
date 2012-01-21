@@ -39,13 +39,13 @@ namespace Sc2CustomOverlays.Code.OverlayItems
                             break;
                     }
                 } catch (NotSupportedException) {
-                    throw new InvalidXMLValueException("OverlayItem", xAttrib.LocalName, InvalidValueReason.FormatIncorrect);
+                    throw new InvalidXMLValueException("OverlayItem", xAttrib.LocalName, InvalidXMLValueException.Reason.FormatIncorrect);
                 } catch (ArgumentNullException) {
-                    throw new InvalidXMLValueException("OverlayItem", xAttrib.LocalName, InvalidValueReason.InvalidValue);
+                    throw new InvalidXMLValueException("OverlayItem", xAttrib.LocalName, InvalidXMLValueException.Reason.InvalidValue);
                 } catch (ArgumentException) {
-                    throw new InvalidXMLValueException("OverlayItem", xAttrib.LocalName, InvalidValueReason.InvalidValue);
+                    throw new InvalidXMLValueException("OverlayItem", xAttrib.LocalName, InvalidXMLValueException.Reason.InvalidValue);
                 } catch (OverflowException) {
-                    throw new InvalidXMLValueException("OverlayItem", xAttrib.LocalName, InvalidValueReason.InvalidValue);
+                    throw new InvalidXMLValueException("OverlayItem", xAttrib.LocalName, InvalidXMLValueException.Reason.InvalidValue);
                 }
             }
 

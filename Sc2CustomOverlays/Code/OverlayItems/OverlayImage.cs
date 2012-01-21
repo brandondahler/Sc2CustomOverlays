@@ -15,7 +15,7 @@ namespace Sc2CustomOverlays.Code.OverlayItems
 {
     class OverlayImage : OverlayItem
     {
-        protected string startDirectory = "/";
+        protected string startDirectory;
 
         protected string originalImageLocation = "";
         protected string imageLocation = "";
@@ -54,7 +54,7 @@ namespace Sc2CustomOverlays.Code.OverlayItems
                 originalImageLocation = xImageNode.Attributes.GetNamedItem("location").Value;
                 imageLocation = originalImageLocation;
             } catch (Exception) {
-                throw new InvalidXMLValueException("OverlayImage", "location", InvalidValueReason.NotSpecified);
+                throw new InvalidXMLValueException("OverlayImage", "location", InvalidXMLValueException.Reason.NotSpecified);
             }
 
             foreach (XmlAttribute xAttrib in xImageNode.Attributes)
@@ -71,11 +71,11 @@ namespace Sc2CustomOverlays.Code.OverlayItems
                             break;
                     }
                 } catch (FormatException) {
-                    throw new InvalidXMLValueException("OverlayImage", xAttrib.LocalName, InvalidValueReason.FormatIncorrect);
+                    throw new InvalidXMLValueException("OverlayImage", xAttrib.LocalName, InvalidXMLValueException.Reason.FormatIncorrect);
                 } catch (ArgumentNullException) {
-                    throw new InvalidXMLValueException("OverlayImage", xAttrib.LocalName, InvalidValueReason.NotSpecified);
+                    throw new InvalidXMLValueException("OverlayImage", xAttrib.LocalName, InvalidXMLValueException.Reason.NotSpecified);
                 } catch (OverflowException) {
-                    throw new InvalidXMLValueException("OverlayImage", xAttrib.LocalName, InvalidValueReason.Overflow);
+                    throw new InvalidXMLValueException("OverlayImage", xAttrib.LocalName, InvalidXMLValueException.Reason.Overflow);
                 }
             }
         }
@@ -86,7 +86,7 @@ namespace Sc2CustomOverlays.Code.OverlayItems
             {
                 try
                 {
-                    BitmapImage bi = new BitmapImage(new Uri("pack://siteoforigin:,,,/" + startDirectory + imageLocation));
+                    BitmapImage bi = new BitmapImage(new Uri(startDirectory + imageLocation)) { CacheOption = BitmapCacheOption.OnLoad };
                     MyImage.Source = bi;
 
                     if (height.HasValue)

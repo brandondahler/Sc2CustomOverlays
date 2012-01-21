@@ -5,10 +5,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d"
-             Updated="OverlayVariable_Updated">
+             DataContext="{Binding RelativeSource={RelativeSource Self}}"
+            >
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
         <Button Content="-" Margin="0,0,5,0" Padding="8,0" Click="SubtractCountHandler"  />
-        <Label Name="ValueLabel" Margin="0,0,3,0" MinWidth="30" HorizontalContentAlignment="Center" />
+        <Label Name="ValueLabel" Margin="0,0,3,0" MinWidth="30" HorizontalContentAlignment="Center" Content="{Binding Path=Value, UpdateSourceTrigger=PropertyChanged}" />
         <Button Content="+" Margin="0,0,5,0" Padding="8,0" Click="AddCountHandler" />
     </StackPanel>
 </ov:OverlayVariable>

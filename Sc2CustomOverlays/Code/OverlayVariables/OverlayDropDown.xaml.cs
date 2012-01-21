@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml;
 using Sc2CustomOverlays.Code.Exceptions;
+using System.Collections.ObjectModel;
 
 namespace Sc2CustomOverlays.Code.OverlayVariables
 {
@@ -22,10 +23,10 @@ namespace Sc2CustomOverlays.Code.OverlayVariables
         {
             get
             {
-                if (_currentValue != null)
-                    return _currentValue;
+                if (currentValue == null)
+                    return defaultValue;
 
-                return options.ElementAt(defaultIndex).Value;
+                return currentValue;
             }
         }
 
@@ -39,9 +40,27 @@ namespace Sc2CustomOverlays.Code.OverlayVariables
                 RaiseUpdated();
             }
         }
-        private int defaultIndex = 0;
 
-        private Dictionary<string, string> options = new Dictionary<string,string>();
+        private string _defaultValue = null;
+        protected string defaultValue
+        {
+            get { return _defaultValue; }
+            set
+            {
+                _defaultValue = value;
+                RaiseUpdated();
+            }
+        }
+
+        public struct DropDownOption
+        {
+            public string name;
+            public string value;
+        }
+
+        
+        private ObservableCollection<DropDownOption> options = new ObservableCollection<DropDownOption>();
+        public ObservableCollection<DropDownOption> ItemOptions { get { return options; } }
         
         public OverlayDropDown()
         {
@@ -59,13 +78,13 @@ namespace Sc2CustomOverlays.Code.OverlayVariables
                     switch (vNodeAttrib.LocalName)
                     {
                         case "default":
-                            defaultIndex = int.Parse(vNodeAttrib.Value);
+                            defaultValue = vNodeAttrib.Value;
                             break;
                     }
                 } catch (FormatException) {
-                    throw new InvalidXMLValueException("OverlayDropDown", vNodeAttrib.Value, InvalidValueReason.FormatIncorrect);
+                    throw new InvalidXMLValueException("OverlayDropDown", vNodeAttrib.Value, InvalidXMLValueException.Reason.FormatIncorrect);
                 } catch (OverflowException) {
-                    throw new InvalidXMLValueException("OverlayDropDown", vNodeAttrib.Value, InvalidValueReason.Overflow);
+                    throw new InvalidXMLValueException("OverlayDropDown", vNodeAttrib.Value, InvalidXMLValueException.Reason.Overflow);
                 }
             }
 
@@ -96,38 +115,30 @@ namespace Sc2CustomOverlays.Code.OverlayVariables
                     lbl = val;
 
                 if (lbl != null && val != null)
-                    options.Add(lbl, val);
+                    options.Add(new DropDownOption() { name = lbl, value = val });
             }
 
 
+        }
+
+        public override void FromNetwork(string value)
+        {
+            currentValue = value;
         }
 
         public override OverlayControlsContainer GetElements()
         {
             OverlayControlsContainer occ = base.GetElements();
 
-            foreach (string optionName in options.Keys)
-                ValueDropDown.Items.Add(optionName);
-
-            UpdateSelection();
-
-            occ.save.AddHandler(Button.ClickEvent, new RoutedEventHandler(SaveUpdateHandler));
-            occ.reset.AddHandler(Button.ClickEvent, new RoutedEventHandler(ClearUpdateHandler));
+            occ.Save.AddHandler(Button.ClickEvent, new RoutedEventHandler(SaveUpdateHandler));
+            occ.Reset.AddHandler(Button.ClickEvent, new RoutedEventHandler(ClearUpdateHandler));
            
             return occ;
         }
 
-        private void UpdateSelection()
-        {
-            if (currentValue != null)
-                ValueDropDown.SelectedItem = currentValue;
-            else
-                ValueDropDown.SelectedIndex = defaultIndex;
-        }
-
         private void SaveUpdateHandler(object sender, RoutedEventArgs rea)
         {    
-            currentValue = options[(string)ValueDropDown.SelectedItem];
+            currentValue = ((DropDownOption) ValueDropDown.SelectedItem).name;
         }
 
         private void ClearUpdateHandler(object sender, RoutedEventArgs rea)

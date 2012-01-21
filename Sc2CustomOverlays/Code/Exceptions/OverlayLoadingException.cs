@@ -5,27 +5,33 @@ using System.Text;
 
 namespace Sc2CustomOverlays.Code.Exceptions
 {
-    public enum OverlayLoadingFailure
+    
+    class OverlayLoadingException : Exception
     {
-        VariableProcessing = 0,
-        OverlayCreation
-    }
+        public enum Reason
+        {
+            InvalidXMLFormat = 0,
+            VariableProcessing,
+            OverlayCreation
+        }
 
-    public class OverlayLoadingException : Exception
-    {
-        public OverlayLoadingException(OverlayLoadingFailure reason) : base("Unable to open OverlaySettings: " + GetMessage(reason))
+        public OverlayLoadingException(Reason reason)
+            : base("Unable to open OverlaySettings: " + GetMessage(reason))
         {
 
         }
 
-        public static string GetMessage(OverlayLoadingFailure reason)
+        public static string GetMessage(Reason reason)
         {
             switch (reason)
             {
-                case OverlayLoadingFailure.VariableProcessing:
+                case Reason.InvalidXMLFormat:
+                    return "XML does not appear to be a valid OverlaySetting format.";
+
+                case Reason.VariableProcessing:
                     return "Variable processing failed.";
 
-                case OverlayLoadingFailure.OverlayCreation:
+                case Reason.OverlayCreation:
                     return "Overlay creation failed.";
             }
 

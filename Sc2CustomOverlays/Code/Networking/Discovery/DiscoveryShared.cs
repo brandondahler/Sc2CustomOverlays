@@ -6,11 +6,11 @@ using System.Net;
 
 namespace Sc2CustomOverlays.Code.Networking.Discovery
 {
-    namespace Shared
+    namespace DiscoveryShared
     {
         
         // All shared constants should go here
-        static public class DiscoveryConstants
+        static class DiscoveryConstants
         {
             public const ushort ClientPort = 9998;
             public const ushort ServerPort = 9999;
@@ -29,7 +29,7 @@ namespace Sc2CustomOverlays.Code.Networking.Discovery
         }
 
         // Class used to transmit information about a server that is discoverable.
-        public class ServerInfo
+        public class DiscoveryServerInfo
         {
             public string Name
             {

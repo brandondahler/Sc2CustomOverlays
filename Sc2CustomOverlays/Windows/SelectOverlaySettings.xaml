@@ -1,0 +1,33 @@
+﻿<Window x:Class="Sc2CustomOverlays.Windows.SelectOverlaySettings"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Select Overlay Settings" ResizeMode="NoResize" ShowInTaskbar="False" 
+        SizeToContent="WidthAndHeight" WindowStartupLocation="CenterOwner" 
+        WindowStyle="ToolWindow" DataContext="{Binding RelativeSource={RelativeSource Self}}" xmlns:my="clr-namespace:Sc2CustomOverlays.Windows">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        
+        <DataGrid Grid.ColumnSpan="2" Name="dgSettings" ItemsSource="{Binding Path=AvailableSettings, UpdateSourceTrigger=PropertyChanged}" 
+                  AutoGenerateColumns="False" SelectionMode="Single" CanUserReorderColumns="False" AreRowDetailsFrozen="False" CanUserSortColumns="False" 
+                  CanUserResizeRows="False" CanUserResizeColumns="false" IsReadOnly="True" HeadersVisibility="Column">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Binding="{Binding Path=Name }" MinWidth="224" />
+                <DataGridCheckBoxColumn Header="Local" Binding="{Binding Path=Local}" />
+                <DataGridCheckBoxColumn Header="Current" Binding="{Binding Path=IsCurrent}" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Button Grid.Row="1" Name="btnUseSelected" Content="Use Selected" Height="30" Width="100" Margin="6" HorizontalAlignment="Center" 
+                Click="btnUseSelected_Click" />
+        <Button Grid.Row="1" Grid.Column="1" Name="btnCancel" Content="Cancel" Height="30" Width="100" Margin="6" HorizontalAlignment="Center" 
+                Click="btnCancel_Click" />
+    </Grid>
+</Window>

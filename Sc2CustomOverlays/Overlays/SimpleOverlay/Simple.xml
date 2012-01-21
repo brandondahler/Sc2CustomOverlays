@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<OverlaySettings>
+    <Overlays>
+        <Overlay halign="Center" background="Black" width="500" height="100">
+            <Text margin="70,0,0,0" valign="Center" size="22" color="White" family="Arial" value="#Player1#" />
+
+            <Text margin="0,0,70,0" halign="Right" valign="Center" justify="Right" size="22" color="White" family="Arial" value="#Player2#" />
+        </Overlay>
+        <Overlay halign="Right" valign="Bottom" background="Pink" width="300" height="300">
+            <Text margin="0,0,0,0" valign="Center" halign="Center" size="38" color="Red" family="Arial" value="By ReAvenged" />
+        </Overlay>
+    </Overlays>
+    
+    <Variables>
+        <String name="Player1" label="Name" default="Player 1" group="Player1" />
+        <String name="Player2" label="Name" default="Player 2" group="Player2" />
+    </Variables>
+
+    <Groups>
+        <Group label="Player 1" name="Player1" />
+        <Group label="Player 2" name="Player2" />
+    </Groups>
+
+</OverlaySettings>
