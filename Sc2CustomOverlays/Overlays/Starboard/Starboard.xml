@@ -7,8 +7,8 @@ Visit https://github.com/ascendedguard/starboard-sc2 for access to the Starboard
 -->
 <OverlaySettings>
     <Overlays>
-        <Overlay halign="Center" margin="100,0,100,0">
-            <Image location="Background.png" />
+        <Overlay halign="Center" margin="0,0,0,0">
+            <Image location="Background.png" width="690" height="56" />
 
             <Gradient margin="3,3,3,3" width="200" halign="Left">
                 <Color color="#Color1#" offset="0" />
@@ -34,7 +34,7 @@ Visit https://github.com/ascendedguard/starboard-sc2 for access to the Starboard
             <Text margin="125,0,0,0" width="100" halign="Center" valign="Center" justify="Left" size="22" color="White" family="Arial" value="#Score2#" />
 
             <Text margin="0,0,70,0" halign="Right" valign="Center" justify="Right" size="22" color="White" family="Arial" value="#Player2#" />
-            <Image margin="0,0,10,0" halign="Right" valign="Center" width="40" height="40"  location="#Race2#Logo.png" />
+            <Image margin="0,0,10,0" halign="Right" valign="Center" width="40" height="40" location="#Race2#Logo.png" />
         </Overlay>
     </Overlays>
     
@@ -42,31 +42,31 @@ Visit https://github.com/ascendedguard/starboard-sc2 for access to the Starboard
         <String name="Player1" label="Name" default="Player 1" group="Player1" />
         <Counter name="Score1" label="Score" default="0" group="Player1" />
         <ItemSelector name="Race1" label="Race" default="Terran" group="Player1" columns="4" itemHeight="30">
-            <Option image="TerranLogoBlack.png" value="Terran" />
-            <Option image="ProtossLogoBlack.png" value="Protoss" />
-            <Option image="ZergLogoBlack.png" value="Zerg" />
-            <Option image="RandomLogoBlack.png" value="Random" />
+            <Image image="TerranLogoBlack.png" value="Terran" />
+            <Image image="ProtossLogoBlack.png" value="Protoss" />
+            <Image image="ZergLogoBlack.png" value="Zerg" />
+            <Image image="RandomLogoBlack.png" value="Random" />
         </ItemSelector>
         <ItemSelector name="Color1" label="Color" default="#00FFFFFF" columns="5" itemHeight="22" itemWidth="36" group="Player1">
-            <Option alt="None" color="Transparent" value="#00FFFFFF" />
-            <Option alt="Red" color="#FF0000" value="#88FF0000" />
-            <Option alt="Green" color="#00CC00" value="#8800CC00" />
-            <Option alt="Blue" color="#0000FF" value="#880000FF" />
+            <Color alt="None" color="Transparent" value="#00FFFFFF" />
+            <Color alt="Red" color="#FF0000" value="#88FF0000" />
+            <Color alt="Green" color="#00CC00" value="#8800CC00" />
+            <Color alt="Blue" color="#0000FF" value="#880000FF" />
         </ItemSelector>
 
         <String name="Player2" label="Name" default="Player 2" group="Player2" />
         <Counter name="Score2" label="Score" default="0" group="Player2" />
         <ItemSelector name="Race2" label="Race" default="Terran" columns="4" itemHeight="30"  group="Player2">
-            <Option image="TerranLogoBlack.png" value="Terran" />
-            <Option image="ProtossLogoBlack.png" value="Protoss" />
-            <Option image="ZergLogoBlack.png" value="Zerg" />
-            <Option image="RandomLogoBlack.png" value="Random" />
+            <Image image="TerranLogoBlack.png" value="Terran" />
+            <Image image="ProtossLogoBlack.png" value="Protoss" />
+            <Image image="ZergLogoBlack.png" value="Zerg" />
+            <Image image="RandomLogoBlack.png" value="Random" />
         </ItemSelector>
         <ItemSelector name="Color2" label="Color" default="#00FFFFFF" columns="5" itemHeight="22" itemWidth="36" group="Player2">
-            <Option alt="None" color="Transparent" value="#00FFFFFF" />
-            <Option alt="Red" color="#FF0000" value="#88FF0000" />
-            <Option alt="Green" color="#00CC00" value="#8800CC00" />
-            <Option alt="Blue" color="#0000FF" value="#880000FF" />
+            <Color alt="None" color="Transparent" value="#00FFFFFF" />
+            <Color alt="Red" color="#FF0000" value="#88FF0000" />
+            <Color alt="Green" color="#00CC00" value="#8800CC00" />
+            <Color alt="Blue" color="#0000FF" value="#880000FF" />
         </ItemSelector>
     </Variables>
 

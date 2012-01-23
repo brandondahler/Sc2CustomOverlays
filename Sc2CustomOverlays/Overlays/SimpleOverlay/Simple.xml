@@ -2,14 +2,17 @@
 
 <OverlaySettings>
     <Overlays>
-        <Overlay halign="Center" background="Black" width="500" height="100">
+        <Overlay halign="Center">
+            <Image location="Background.png" width="630" height="56" />
             <Text margin="70,0,0,0" valign="Center" size="22" color="White" family="Arial" value="#Player1#" />
 
             <Text margin="0,0,70,0" halign="Right" valign="Center" justify="Right" size="22" color="White" family="Arial" value="#Player2#" />
         </Overlay>
-        <Overlay halign="Right" valign="Bottom" background="Pink" width="300" height="300">
+
+        <Overlay halign="Right" valign="Bottom" background="Black" width="300" height="300">
             <Text margin="0,0,0,0" valign="Center" halign="Center" size="38" color="Red" family="Arial" value="By ReAvenged" />
         </Overlay>
+
     </Overlays>
     
     <Variables>

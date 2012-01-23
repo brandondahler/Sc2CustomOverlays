@@ -1,0 +1,41 @@
+﻿<Window x:Class="Sc2CustomOverlays.Windows.OverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:Sc2CustomOverlays.ViewModel"
+        xmlns:oivm="clr-namespace:Sc2CustomOverlays.ViewModel.OverlayItems"
+        xmlns:oivw="clr-namespace:Sc2CustomOverlays.Views.OverlayItems"
+        Title="Overlay" ShowInTaskbar="false" Topmost="True" WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown" Closing="Window_Closing" 
+        Loaded="Window_Loaded"
+        
+        Background="{Binding Path=Background, UpdateSourceTrigger=PropertyChanged}"
+        Width="{Binding Path=Width, UpdateSourceTrigger=PropertyChanged}"
+        Height="{Binding Path=Height, UpdateSourceTrigger=PropertyChanged}"
+        SizeToContent="{Binding Path=SizeWindowToContent, UpdateSourceTrigger=PropertyChanged}"
+      >
+    <Window.DataContext>
+        <vm:OverlayWindowModel />
+    </Window.DataContext>
+    
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type oivm:OverlayTextViewModel}">
+            <oivw:OverlayTextView />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type oivm:OverlayImageViewModel}">
+            <oivw:OverlayImageView />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type oivm:OverlayGradientViewModel}">
+            <oivw:OverlayGradientView />
+        </DataTemplate>
+    </Window.Resources>
+
+    <ItemsControl ItemsSource="{Binding Path=OverlayItems}">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <Grid />
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+    </ItemsControl>
+</Window>

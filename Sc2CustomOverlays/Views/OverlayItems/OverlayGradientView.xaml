@@ -1,0 +1,16 @@
+﻿<UserControl x:Class="Sc2CustomOverlays.Views.OverlayItems.OverlayGradientView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d">
+    <Rectangle Margin="{Binding Path=Margin, UpdateSourceTrigger=PropertyChanged}"
+               HorizontalAlignment="{Binding Path=HorizontalAlign, UpdateSourceTrigger=PropertyChanged}"
+               VerticalAlignment="{Binding Path=VerticalAlign, UpdateSourceTrigger=PropertyChanged}"
+               
+               Width="{Binding Path=Width, UpdateSourceTrigger=PropertyChanged}"
+               Height="{Binding Path=Height, UpdateSourceTrigger=PropertyChanged}"
+               
+               Fill="{Binding Path=GradientBrush, UpdateSourceTrigger=PropertyChanged}"
+        />
+</UserControl>

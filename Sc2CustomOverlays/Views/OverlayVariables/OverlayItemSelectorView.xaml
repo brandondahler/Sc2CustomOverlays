@@ -1,0 +1,72 @@
+﻿<UserControl x:Class="Sc2CustomOverlays.Views.OverlayVariables.OverlayItemSelectorView"
+             xmlns:ovvm="clr-namespace:Sc2CustomOverlays.ViewModel.OverlayVariables"
+             xmlns:isot="clr-namespace:Sc2CustomOverlays.Models.ItemSelectorOptionTypes"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" Name="UserControl">
+    <UserControl.Resources>
+
+        <DataTemplate DataType="{x:Type isot:ItemSelectorLabel}">
+            <Label HorizontalAlignment="Center" VerticalAlignment="Center" 
+                   HorizontalContentAlignment="Center" VerticalContentAlignment="Top" 
+                   Content="{Binding Path=Label}" ToolTip="{Binding Path=Alt}" />
+
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type isot:ItemSelectorImage}">
+            <Image HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
+                   Source="{Binding Path=Location}" ToolTip="{Binding Path=Alt}" />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type isot:ItemSelectorColor}">
+            <Border BorderBrush="Black" BorderThickness="1"  Margin="2" >
+                <Rectangle Fill="{Binding Path=Fill}" ToolTip="{Binding Path=Alt}" />
+            </Border>
+        </DataTemplate>
+
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" SharedSizeGroup="OverlayVariables1" />
+            <ColumnDefinition Width="Auto" SharedSizeGroup="OverlayVariables2" />
+            <ColumnDefinition SharedSizeGroup="OverlayVariables3" />
+            <ColumnDefinition Width="Auto" SharedSizeGroup="OverlayVariables4" />
+        </Grid.ColumnDefinitions>
+
+        <Label Grid.Column="0" Margin="0,0,15,5" 
+               Content="{Binding Path=Label, UpdateSourceTrigger=PropertyChanged}" />
+
+
+        <ItemsControl Grid.Column="1" Margin="0,0,15,5" ItemsSource="{Binding Path=SelectionOptions}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid HorizontalAlignment="Left" Columns="{Binding Path=Columns, UpdateSourceTrigger=PropertyChanged}" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    
+                    <RadioButton Margin="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" 
+                                 Content="{Binding}" 
+                                 IsChecked="{Binding Path=IsChecked, UpdateSourceTrigger=PropertyChanged}"
+                                 GroupName="{Binding ElementName=UserControl, Path=DataContext.SelectorName, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="{Binding ElementName=UserControl, Path=DataContext.ItemHeight, UpdateSourceTrigger=PropertyChanged}"
+                                 Width="{Binding ElementName=UserControl, Path=DataContext.ItemWidth, UpdateSourceTrigger=PropertyChanged}">
+                        <RadioButton.Style>
+                            <Style TargetType="{x:Type RadioButton}" BasedOn="{StaticResource {x:Type ToggleButton}}" />
+                        </RadioButton.Style >
+                    </RadioButton>
+                    
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Button Grid.Column="3" Margin="0,0,15,5" Padding="15,0"
+                Content="Clear" Command="{Binding Path=Clear}" />
+
+    </Grid>
+</UserControl>

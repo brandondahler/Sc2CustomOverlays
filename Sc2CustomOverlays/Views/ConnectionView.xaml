@@ -1,0 +1,20 @@
+﻿<UserControl x:Class="Sc2CustomOverlays.Views.ConnectionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:v="clr-namespace:Sc2CustomOverlays.Views"
+             mc:Ignorable="d">
+    <TabControl>
+        <TabItem Header="Details">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <v:ConnectionClientView Grid.Row="0" />
+                <v:ConnectionServerView Grid.Row="1" />
+            </Grid>
+        </TabItem>
+    </TabControl>
+</UserControl>

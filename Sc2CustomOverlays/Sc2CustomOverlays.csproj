@@ -75,35 +75,59 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Views\ConnectionClientView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ConnectionServerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ConnectionView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\OverlayControlView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\OverlayItems\OverlayGradientView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\OverlayItems\OverlayImageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\OverlayItems\OverlayTextView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\SelectOverlaySettings.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Code\Overlay.xaml">
+    <Page Include="Windows\OverlayWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Code\OverlayVariables\OverlayCounter.xaml">
+    <Page Include="Views\OverlayVariables\OverlayCounterView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Code\OverlayVariables\OverlayDropDown.xaml">
+    <Page Include="Views\OverlayVariables\OverlayDropDownView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Code\OverlayVariables\OverlayItemSelector.xaml">
+    <Page Include="Views\OverlayVariables\OverlayItemSelectorView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Code\OverlayVariables\OverlayString.xaml">
+    <Page Include="Views\OverlayVariables\OverlayStringView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Code\OverlayVariables\OverlayVariableResources.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Code\Networking\Discovery\FindServers.xaml">
+    <Page Include="Windows\FindServers.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -115,61 +139,96 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Code\Exceptions\InvalidXMLValueException.cs" />
-    <Compile Include="Code\Exceptions\OverlayCreationException.cs" />
-    <Compile Include="Code\Exceptions\OverlayLoadingException.cs" />
-    <Compile Include="Code\Exceptions\VariableParseException.cs" />
-    <Compile Include="Code\AvailableOverlaySetting.cs" />
-    <Compile Include="Code\Networking\Control\Commands\AvailableSettingsRequestCommand.cs" />
-    <Compile Include="Code\Networking\Control\CommandException.cs" />
-    <Compile Include="Code\Networking\Control\Commands\CloseCommand.cs" />
-    <Compile Include="Code\Networking\Control\ControlCommand.cs" />
-    <Compile Include="Code\Networking\Control\Commands\AvailableSettingsResponseCommand.cs" />
-    <Compile Include="Code\Networking\Control\Commands\DownloadSettingResponseCommand.cs" />
-    <Compile Include="Code\Networking\Control\Commands\DownloadSettingRequestCommand.cs" />
-    <Compile Include="Code\Networking\Control\Commands\OverlaySettingSelectCommand.cs" />
-    <Compile Include="Code\Networking\Control\Commands\OverlaySettingLoadedCommand.cs" />
-    <Compile Include="Code\Networking\Control\Commands\UpdateVariableCommand.cs" />
-    <Compile Include="Code\Networking\Control\ControlClientService.cs" />
-    <Compile Include="Code\Networking\Control\ControlServerService.cs" />
-    <Compile Include="Code\Networking\Control\ControlService.cs" />
-    <Compile Include="Code\Networking\Encryption\EncryptedTcpClient.cs" />
-    <Compile Include="Code\Networking\Encryption\EncryptedTcpListener.cs" />
-    <Compile Include="Code\Networking\StatusConstants.cs" />
-    <Compile Include="Code\OverlayVariableGroup.cs" />
+    <Compile Include="Models\ItemSelectorOptionTypes.cs" />
+    <Compile Include="Models\MVVMHelpers\Commands\CommandReference.cs" />
+    <Compile Include="Models\MVVMHelpers\Commands\DelegateCommand.cs" />
+    <Compile Include="Models\Exceptions\InvalidXMLValueException.cs" />
+    <Compile Include="Models\Exceptions\OverlayCreationException.cs" />
+    <Compile Include="Models\Exceptions\OverlayLoadingException.cs" />
+    <Compile Include="Models\Exceptions\VariableParseException.cs" />
+    <Compile Include="Models\AvailableOverlaySetting.cs" />
+    <Compile Include="Models\Networking\Control\Commands\AvailableSettingsRequestCommand.cs" />
+    <Compile Include="Models\Networking\Control\CommandException.cs" />
+    <Compile Include="Models\Networking\Control\Commands\CloseCommand.cs" />
+    <Compile Include="Models\Networking\Control\ControlCommand.cs" />
+    <Compile Include="Models\Networking\Control\Commands\AvailableSettingsResponseCommand.cs" />
+    <Compile Include="Models\Networking\Control\Commands\DownloadSettingResponseCommand.cs" />
+    <Compile Include="Models\Networking\Control\Commands\DownloadSettingRequestCommand.cs" />
+    <Compile Include="Models\Networking\Control\Commands\OverlaySettingSelectCommand.cs" />
+    <Compile Include="Models\Networking\Control\Commands\OverlaySettingLoadedCommand.cs" />
+    <Compile Include="Models\Networking\Control\Commands\UpdateVariableCommand.cs" />
+    <Compile Include="Models\Networking\Control\ControlClientService.cs" />
+    <Compile Include="Models\Networking\Control\ControlServerService.cs" />
+    <Compile Include="Models\Networking\Control\ControlService.cs" />
+    <Compile Include="Models\Networking\Encryption\EncryptedTcpClient.cs" />
+    <Compile Include="Models\Networking\Encryption\EncryptedTcpListener.cs" />
+    <Compile Include="Models\Networking\StatusConstants.cs" />
+    <Compile Include="Models\OverlayVariableGroup.cs" />
+    <Compile Include="Models\MVVMHelpers\ObservableModel.cs" />
+    <Compile Include="ViewModel\ConnectionClientViewModel.cs" />
+    <Compile Include="ViewModel\ConnectionServerViewModel.cs" />
+    <Compile Include="ViewModel\FindServersWindowModel.cs" />
+    <Compile Include="ViewModel\MainWindowModel.cs" />
+    <Compile Include="ViewModel\OverlayControlViewModel.cs" />
+    <Compile Include="ViewModel\OverlayVariables\OverlayCounterViewModel.cs" />
+    <Compile Include="ViewModel\OverlayVariables\OverlayDropDownViewModel.cs" />
+    <Compile Include="ViewModel\OverlayVariables\OverlayItemSelectorViewModel.cs" />
+    <Compile Include="ViewModel\OverlayVariables\OverlayStringViewModel.cs" />
+    <Compile Include="ViewModel\OverlayWindowModel.cs" />
+    <Compile Include="Views\ConnectionClientView.xaml.cs">
+      <DependentUpon>ConnectionClientView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ConnectionServerView.xaml.cs">
+      <DependentUpon>ConnectionServerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ConnectionView.xaml.cs">
+      <DependentUpon>ConnectionView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\OverlayControlView.xaml.cs">
+      <DependentUpon>OverlayControlView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\OverlayItems\OverlayGradientView.xaml.cs">
+      <DependentUpon>OverlayGradientView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\OverlayItems\OverlayImageView.xaml.cs">
+      <DependentUpon>OverlayImageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\OverlayItems\OverlayTextView.xaml.cs">
+      <DependentUpon>OverlayTextView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\SelectOverlaySettings.xaml.cs">
       <DependentUpon>SelectOverlaySettings.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Code\Networking\Discovery\DiscoveryClientService.cs" />
-    <Compile Include="Code\Networking\Discovery\DiscoveryShared.cs" />
-    <Compile Include="Code\Networking\Discovery\DiscoveryServerService.cs" />
-    <Compile Include="Code\Networking\Encryption\EncryptedNetworkStream.cs" />
-    <Compile Include="Code\Networking\Encryption\EncryptedNetworkStreamException.cs" />
-    <Compile Include="Code\Networking\SerializedString.cs" />
-    <Compile Include="Code\Overlay.xaml.cs">
-      <DependentUpon>Overlay.xaml</DependentUpon>
+    <Compile Include="Models\Networking\Discovery\DiscoveryClientService.cs" />
+    <Compile Include="Models\Networking\Discovery\DiscoveryShared.cs" />
+    <Compile Include="Models\Networking\Discovery\DiscoveryServerService.cs" />
+    <Compile Include="Models\Networking\Encryption\EncryptedNetworkStream.cs" />
+    <Compile Include="Models\Networking\Encryption\EncryptedNetworkStreamException.cs" />
+    <Compile Include="Models\Networking\SerializedString.cs" />
+    <Compile Include="Windows\OverlayWindow.xaml.cs">
+      <DependentUpon>OverlayWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Code\OverlayControlsContainer.cs" />
-    <Compile Include="Code\OverlayItems\OverlayImage.cs" />
-    <Compile Include="Code\OverlayItems\OverlayItem.cs" />
-    <Compile Include="Code\OverlayItems\OverlayGradient.cs" />
-    <Compile Include="Code\OverlayItems\OverlayText.cs" />
-    <Compile Include="Code\OverlaySettings.cs" />
-    <Compile Include="Code\OverlayVariables\OverlayCounter.xaml.cs">
-      <DependentUpon>OverlayCounter.xaml</DependentUpon>
+    <Compile Include="Models\OverlayControlsContainer.cs" />
+    <Compile Include="ViewModel\OverlayItems\OverlayImageViewModel.cs" />
+    <Compile Include="ViewModel\OverlayItems\OverlayItemBaseModel.cs" />
+    <Compile Include="ViewModel\OverlayItems\OverlayGradientViewModel.cs" />
+    <Compile Include="ViewModel\OverlayItems\OverlayTextViewModel.cs" />
+    <Compile Include="Models\OverlaySettings.cs" />
+    <Compile Include="Views\OverlayVariables\OverlayCounterView.xaml.cs">
+      <DependentUpon>OverlayCounterView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Code\OverlayVariables\OverlayDropDown.xaml.cs">
-      <DependentUpon>OverlayDropDown.xaml</DependentUpon>
+    <Compile Include="Views\OverlayVariables\OverlayDropDownView.xaml.cs">
+      <DependentUpon>OverlayDropDownView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Code\OverlayVariables\OverlayItemSelector.xaml.cs">
-      <DependentUpon>OverlayItemSelector.xaml</DependentUpon>
+    <Compile Include="Views\OverlayVariables\OverlayItemSelectorView.xaml.cs">
+      <DependentUpon>OverlayItemSelectorView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Code\OverlayVariables\OverlayString.xaml.cs">
-      <DependentUpon>OverlayString.xaml</DependentUpon>
+    <Compile Include="Views\OverlayVariables\OverlayStringView.xaml.cs">
+      <DependentUpon>OverlayStringView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Code\OverlayVariables\OverlayVariable.cs" />
-    <Compile Include="Code\VariableEvaluator.cs" />
-    <Compile Include="Code\Networking\Discovery\FindServers.xaml.cs">
+    <Compile Include="ViewModel\OverlayVariables\OverlayVariableBaseModel.cs" />
+    <Compile Include="Models\VariableEvaluator.cs" />
+    <Compile Include="Windows\FindServers.xaml.cs">
       <DependentUpon>FindServers.xaml</DependentUpon>
     </Compile>
     <Compile Include="Windows\MainWindow.xaml.cs">
@@ -235,6 +294,11 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Overlays\SimpleOverlay\Simple.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Overlays\SimpleOverlay\Background.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
