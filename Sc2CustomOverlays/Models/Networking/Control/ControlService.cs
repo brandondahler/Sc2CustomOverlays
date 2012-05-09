@@ -47,8 +47,8 @@ namespace Sc2CustomOverlays.Models.Networking.Control
 
             // Protected members should be autonomous and cleanupable by setting to null.
             #region Connection
-                private EncryptedTcpClient _connection = null;
-                protected EncryptedTcpClient Connection
+                private TcpClient _connection = null;
+                protected TcpClient Connection
                 {
                     get { return _connection; }
                     set
@@ -64,8 +64,8 @@ namespace Sc2CustomOverlays.Models.Networking.Control
                 }
             #endregion
             #region EncryptedStream
-                private EncryptedNetworkStream _encryptedStream = null;
-                protected EncryptedNetworkStream EncryptedStream 
+                private Stream _encryptedStream = null;
+                protected Stream EncryptedStream 
                 { 
                     get { return _encryptedStream; }
                     set
@@ -202,7 +202,7 @@ namespace Sc2CustomOverlays.Models.Networking.Control
             protected virtual bool ProcessSinglePacket(ControlCommand.Command? requiredCommand = null)
             {
                 // Alias EncryptedStream as ns for cleaner code
-                EncryptedNetworkStream ns = EncryptedStream;
+                Stream ns = EncryptedStream;
 
                 byte[] commandBuffer = new byte[1];
                 int commandBytesRead = 0;

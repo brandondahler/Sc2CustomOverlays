@@ -55,7 +55,7 @@ namespace Sc2CustomOverlays.Models.Networking.Control
             {
                 SocketThreadInfo threadInfo = (SocketThreadInfo) threadParams;
 
-                Connection = new EncryptedTcpClient();
+                Connection = new TcpClient();
             
                 try
                 {
@@ -63,7 +63,7 @@ namespace Sc2CustomOverlays.Models.Networking.Control
                     Connection.Connect(new IPEndPoint(threadInfo.ip, threadInfo.port));
 
                     ConnectedStatus = ConnectionStatus.Authenticating;
-                    EncryptedStream = Connection.GetEncryptedStream(threadInfo.password);
+                    EncryptedStream = new EncryptedNetworkStream(Connection.GetStream(), threadInfo.password, true);
 
                     ConnectedStatus = ConnectionStatus.Connected;
 

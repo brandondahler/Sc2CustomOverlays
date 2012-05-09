@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Net.Sockets;
-using Sc2CustomOverlays.Models.Networking.Encryption;
+using System.IO;
 
 namespace Sc2CustomOverlays.Models.Networking.Control.Commands
 {
@@ -19,7 +19,7 @@ namespace Sc2CustomOverlays.Models.Networking.Control.Commands
             }
         #endregion
 
-        private uint lastStreamId = 0xFFFFFFFF;
+        private Stream lastStream = null;
         private string lastVariableName = null;
         private string lastVariableValue = null;
 
@@ -27,7 +27,7 @@ namespace Sc2CustomOverlays.Models.Networking.Control.Commands
         //  Return Data: 2
         //      string variableName - Name of updated variable
         //      string variableValue - Value of updated variable
-        public override CommandResult HandleCommand(EncryptedNetworkStream ns)
+        public override CommandResult HandleCommand(Stream ns)
         {
             Dictionary<string, object> resultData = new Dictionary<string, object>();
 
@@ -37,7 +37,7 @@ namespace Sc2CustomOverlays.Models.Networking.Control.Commands
             resultData["variableName"] = variableName;
             resultData["variableValue"] = variableValue;
 
-            lastStreamId = ns.Id;
+            lastStream = ns;
             lastVariableName = variableName;
             lastVariableValue = variableValue;
             
@@ -48,7 +48,7 @@ namespace Sc2CustomOverlays.Models.Networking.Control.Commands
         //  In Parameters: 2
         //      string variableName - Name of updated variable
         //      string variableValue - Value of updated variable
-        public override bool SendCommand(EncryptedNetworkStream ns, Dictionary<string, object> parameters = null)
+        public override bool SendCommand(Stream ns, Dictionary<string, object> parameters = null)
         {
             if (parameters == null)
                 throw new CommandException("UpdateVariableCommand", true, CommandException.Reason.MissingParameter);
@@ -67,7 +67,7 @@ namespace Sc2CustomOverlays.Models.Networking.Control.Commands
             }
 
             // Don't resend what they just told us if it was on the same stream
-            if (ns.Id == lastStreamId && lastVariableName != null && lastVariableValue != null &&
+            if (ns == lastStream && lastVariableName != null && lastVariableValue != null &&
                 lastVariableName == variableName && lastVariableValue == variableValue)
             {
                 return false;
@@ -89,7 +89,7 @@ namespace Sc2CustomOverlays.Models.Networking.Control.Commands
                 return false;
             }
 
-            lastStreamId = ns.Id;
+            lastStream = ns;
             lastVariableName = variableName;
             lastVariableValue = variableValue;
 

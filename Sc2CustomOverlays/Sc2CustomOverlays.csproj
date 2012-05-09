@@ -160,9 +160,11 @@
     <Compile Include="Models\Networking\Control\ControlClientService.cs" />
     <Compile Include="Models\Networking\Control\ControlServerService.cs" />
     <Compile Include="Models\Networking\Control\ControlService.cs" />
-    <Compile Include="Models\Networking\Encryption\EncryptedTcpClient.cs" />
-    <Compile Include="Models\Networking\Encryption\EncryptedTcpListener.cs" />
+    <Compile Include="Models\Networking\SerializedArray.cs" />
+    <Compile Include="Models\Networking\Encryption\AESStream.cs" />
+    <Compile Include="Models\Networking\Encryption\RSAStream.cs" />
     <Compile Include="Models\Networking\StatusConstants.cs" />
+    <Compile Include="Models\Networking\StreamHelper.cs" />
     <Compile Include="Models\OverlayVariableGroup.cs" />
     <Compile Include="Models\MVVMHelpers\ObservableModel.cs" />
     <Compile Include="ViewModel\ConnectionClientViewModel.cs" />

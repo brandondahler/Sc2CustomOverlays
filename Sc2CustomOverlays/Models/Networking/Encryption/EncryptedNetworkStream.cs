@@ -7,265 +7,184 @@ using System.IO;
 using System.Security;
 using System.Security.Cryptography;
 using System.Threading;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Sc2CustomOverlays.Models.Networking.Encryption
 {
-    public sealed class EncryptedNetworkStream : NetworkStream
+    public sealed class EncryptedNetworkStream : Stream, IDisposable
     {
-        private static RNGCryptoServiceProvider r = new RNGCryptoServiceProvider();
+        private NetworkStream baseStream;
+
+        private RSAStream rsaStream = null;
+        private AESStream aesStream = null;
         
-        private static uint currentId = 0;
-        private uint _id = 0;
-        public uint Id { get { return _id; } }
-        
-        private byte[] readHash = null;
-        private int readHashLocation = 0;
 
-        private byte[] writeHash = null;
-        private int writeHashLocation = 0;
-
-        #region Encryption Initialization
-
-            #region Constructors and Initialize
-                public EncryptedNetworkStream(Socket socket, string password) 
-                    : base(socket) 
-                { 
-                    Initialize(password); 
-                }
-
-                public EncryptedNetworkStream(Socket socket, bool ownsSocket, string password) 
-                    : base(socket, ownsSocket) 
-                { 
-                    Initialize(password); 
-                }
-
-                public EncryptedNetworkStream(Socket socket, FileAccess access, string password)
-                    : base(socket, access)
-                {
-                    Initialize(password);
-                }
-
-                public EncryptedNetworkStream(Socket socket, FileAccess access, bool ownsSocket, string password)
-                    : base(socket, access, ownsSocket)
-                {
-                    Initialize(password);
-                }
-
-                private void Initialize(string password)
-                {
-                    // Set our unique id
-                    _id = currentId++;
-                    NegotiateHashes(System.Text.Encoding.UTF8.GetBytes(password));
-                }
-            #endregion
-
-            private void NegotiateHashes(byte[] streamPassword)
+        #region Construction and Authentication
+            public EncryptedNetworkStream(NetworkStream ns, string password, bool client)
             {
-                if (readHash != null || writeHash != null)
-                    throw new InvalidOperationException("EncryptedNetworkStream :: Cannot negotiate hashes at this time.");
+                baseStream = ns;
+                NegotiateAuthentication(password, client);
+            }
 
-                int oldReadTimeout = ReadTimeout;
+            private void NegotiateAuthentication(string streamPassword, bool client)
+            {
+                int oldReadTimeout = baseStream.ReadTimeout;
 
-                ReadTimeout = 5000;
+                baseStream.ReadTimeout = 5000;
 
-                /*
-                * Generate and send write hash 
-                */
+                
+                RSACryptoServiceProvider localKeys;
+                RSACryptoServiceProvider remoteKey;
+        
+                // Generate and send public key 
                 {
-
-                    byte[] writeHashSizeByte = new byte[1];
-                    r.GetBytes(writeHashSizeByte);
-                    int writeHashSize = (int) writeHashSizeByte[0] | 256;
-
-                    // Generate sendHash first to make extra bytes
-                    byte[] sendHash = new byte[511];
-                    r.GetBytes(sendHash);
-
-                    // Copy first writeHashSize bytes from sendHash to writeHash
-                    writeHash = new byte[writeHashSize];
-                    Array.Copy(sendHash, writeHash, writeHashSize);
-
-                    // Generate the data we're going to send
-                    byte[] buffer = new byte[1 + 511];
-
-                    // Fill buffer with data
-                    //   Cut off MSB of writeHashSize same as (writeHashSize - 256)
-                    buffer[0] = (byte)(writeHashSize & 255);
-                    Array.Copy(sendHash, 0, buffer, 1, 511);
-
-                    // XOr our password over buffer to encrypt it once with our password, 
-                    //  this data can be decrypted by XOring with the same password again
-                    for (int x = 0; x < 512; ++x)
-                        buffer[x] = (byte)(buffer[x] ^ streamPassword[x % streamPassword.Length]);
-
-                    base.Write(buffer, 0, 512);
+                    localKeys = new RSACryptoServiceProvider();
+                    byte[] publicBlob = localKeys.ExportCspBlob(false);
+                    baseStream.Write(BitConverter.GetBytes(publicBlob.Length), 0, 4);
+                    baseStream.Write(publicBlob, 0, publicBlob.Length);
                 }
 
-                /*
-                * Receive and decrypt read hash
-                */
+                // Receive remote public key                
+                try 
                 {
-                    // Read 512 bytes off the line
-                    byte[] readBuffer = new byte[512];
+                    byte[] blobLen = new byte[4];
+                    StreamHelper.ForceReadAll(baseStream, blobLen, 0, 4);
 
-                    int totalRead = 0;
-                    int curRead = 0;
+                    byte[] remoteBlob = new byte[BitConverter.ToInt32(blobLen, 0)];
+                    StreamHelper.ForceReadAll(baseStream, remoteBlob, 0, remoteBlob.Length);
 
-                    do
-                    {
-                        try
-                        {
-                            curRead = base.Read(readBuffer, totalRead, 512 - totalRead);
-                        } catch (IOException) {
-                            throw new EncryptedNetworkStreamException(EncryptedNetworkStreamException.Reason.ReadTimeout);
-                        }
-                        totalRead += curRead;
-                    } while (totalRead < 512 && curRead != 0);
-                    if (curRead == 0)
-                        throw new EncryptedNetworkStreamException(EncryptedNetworkStreamException.Reason.NetworkError);
-
-                    // Decrypt the data with our password by XOring over the data
-                    for (int x = 0; x < 512; ++x)
-                        readBuffer[x] = (byte)(readBuffer[x] ^ streamPassword[x % streamPassword.Length]);
-
-
-                    // Fill readHash
-                    int readHashSize = ((int)readBuffer[0] | 256);
-                    readHash = new byte[readHashSize];
-                    Array.Copy(readBuffer, 1, readHash, 0, readHashSize);
+                    remoteKey = new RSACryptoServiceProvider();
+                    remoteKey.ImportCspBlob(remoteBlob);
+                } catch (Exception) {
+                    throw new EncryptedNetworkStreamException(EncryptedNetworkStreamException.Reason.NetworkError);
                 }
 
-                /*
-                    * Verify we are on the same page by hashing the readHash over itself 16384 times.
-                    * Rationale is that while a single sha256 computation is fast itself, it significantly slows 
-                    *   down brute force attempts by requiring it to be done so many times per key to test.
-                    */
+                rsaStream = new RSAStream(baseStream, localKeys, remoteKey);
+
+                AesCryptoServiceProvider aesKey = new AesCryptoServiceProvider();
+                aesKey.KeySize = 256;
+
+                // Authenticate client/server
+                byte[] passwordHash = MD5.Create().ComputeHash(ASCIIEncoding.UTF8.GetBytes(streamPassword));
+
+                if (client)
                 {
-                    // Hash the readHash 16,384 times over itself
-                    SHA256 sha256Engine = SHA256.Create();
-                    byte[] readSha256 = readHash;
+                    // If we're the client, send the password hash (encrypted)
+                    rsaStream.Write(passwordHash, 0, 16);
 
-                    // readSha256 should be a 32 byte array afterwards
-                    for (int x = 0; x < 16384; ++x)
-                        readSha256 = sha256Engine.ComputeHash(readSha256);
+                    // Read AES key
+                    byte[] lenBuffer = new byte[4];
+                    StreamHelper.ForceReadAll(rsaStream, lenBuffer, 0, 4);
 
-                    Encrypt(readSha256, 0, 32);
-                    base.Write(readSha256, 0, 32);
+                    byte[] aesKeyBuffer = new Byte[BitConverter.ToInt32(lenBuffer, 0)];
+                    StreamHelper.ForceReadAll(rsaStream, aesKeyBuffer, 0, aesKeyBuffer.Length);
 
+                    StreamHelper.ForceReadAll(rsaStream, lenBuffer, 0, 4);
+
+                    byte[] aesIVBuffer = new Byte[BitConverter.ToInt32(lenBuffer, 0)];
+                    StreamHelper.ForceReadAll(rsaStream, aesIVBuffer, 0, aesIVBuffer.Length);
+
+                    aesKey.Key = aesKeyBuffer;
+                    aesKey.IV = aesIVBuffer;
+
+                } else {
+                    // If we're the server, wait for them to send the password (encrypted)
+                    byte[] receivedPasswordHash = new byte[16];
+                    StreamHelper.ForceReadAll(rsaStream, receivedPasswordHash, 0, 16);
+
+
+                    if (! passwordHash.SequenceEqual(receivedPasswordHash))
+                        throw new EncryptedNetworkStreamException(EncryptedNetworkStreamException.Reason.InvalidAuthentication);
+    
+                    // Generate/send AES key
+                    aesKey.GenerateKey();
+                    aesKey.GenerateIV();
+
+                    // Group length and key togeather to lower overhead
+
+                    byte[] keyDataBuffer = SerializedArray.ToNetworkBytes(aesKey.Key);
+                    rsaStream.Write(keyDataBuffer, 0, keyDataBuffer.Length);
+
+                    byte[] keyIVBuffer = SerializedArray.ToNetworkBytes(aesKey.IV);
+                    rsaStream.Write(keyIVBuffer, 0, keyIVBuffer.Length);
                 }
 
-                /*
-                * Make sure they got our key right
-                */
-                {
-                    // Calculate our writeHash (what they sent)
-                    SHA256 sha256Engine = SHA256.Create();
-                    byte[] writeSha256 = writeHash;
+                aesStream = new AESStream(baseStream, aesKey);
 
-                    // readSha256 should be a 32 byte array afterwards
-                    for (int x = 0; x < 16384; ++x)
-                        writeSha256 = sha256Engine.ComputeHash(writeSha256);
-
-                    // Read 32 bytes off the line
-                    byte[] readBuffer = new byte[32];
-
-                    int totalRead = 0;
-                    int curRead = 0;
-
-                    do
-                    {
-                        try
-                        {
-                            curRead = base.Read(readBuffer, totalRead, 32 - totalRead);
-                        } catch (IOException) {
-                            throw new EncryptedNetworkStreamException(EncryptedNetworkStreamException.Reason.ReadTimeout);
-                        }
-                        totalRead += curRead;
-                    } while (totalRead < 32 && curRead != 0);
-                    if (curRead == 0)
-                        throw new EncryptedNetworkStreamException(EncryptedNetworkStreamException.Reason.NetworkError);
-
-                    // Decrypt received bytes
-                    Decrypt(readBuffer, 0, 32);
-
-                    // Ensure the authentication is correct, else throw an invalid authentication exception
-                    for (int x = 0; x < 32; ++x)
-                    {
-                        if (readBuffer[x] != writeSha256[x])
-                            throw new EncryptedNetworkStreamException(EncryptedNetworkStreamException.Reason.InvalidAuthentication);
-                    }
-
-
-                }
-
-                ReadTimeout = oldReadTimeout;
+                baseStream.ReadTimeout = oldReadTimeout;
 
 
             }
         #endregion
 
-        #region Read, Write, Close
-
+        #region Read and Write
             public override int Read(byte[] buffer, int offset, int size)
             {
+                if (aesStream == null)
+                    throw new EncryptedNetworkStreamException(EncryptedNetworkStreamException.Reason.NetworkError);
 
-                int bytesRead = base.Read(buffer, offset, size);
-                Decrypt(buffer, offset, size);
-
-                return bytesRead;
-            }
-
-            public int ForceReadAll(byte[] buffer, int offset, int size)
-            {
-                if (size == 0) return 0;
-
-                int totalRead = 0;
-                int curRead = 0;
-
-                do
-                {
-                    curRead = Read(buffer, offset + totalRead, size - totalRead);
-                    totalRead += curRead;
-                } while (totalRead < size && curRead != 0);
-                if (curRead == 0) throw new Exception("EncryptedNetworkString:: Unable to force read all.");
-
-                return totalRead;
+                
+                return aesStream.Read(buffer, offset, size);
             }
 
             public override void Write(byte[] buffer, int offset, int size)
             {
-                byte[] encryptedBuffer = new byte[size];
-                Array.Copy(buffer, offset, encryptedBuffer, 0, size);
-
-                Encrypt(encryptedBuffer, 0, size);
-
-                base.Write(encryptedBuffer, 0, size);
+                aesStream.Write(buffer, offset, size);
             }
-
         #endregion
 
-        #region Encryption and Decryption
-
-            private void Encrypt(byte[] unencryptedBuffer, int offset, int size)
+        #region Required Overrides
+            public override long Position
             {
-                for (int x = 0; x < size; ++x, ++writeHashLocation)
-                {
-                    writeHashLocation %= writeHash.Length;
-                    unencryptedBuffer[x] = (byte)(unencryptedBuffer[x] ^ writeHash[writeHashLocation]);
-                }
-
+                get { return baseStream.Position; }
+                set { baseStream.Position = value; }
+            } 
+   
+            public override long Length
+            {
+                get { return baseStream.Length; }
             }
 
-            private void Decrypt(byte[] encryptedBuffer, int offset, int size)
+            public override bool CanRead
             {
-                for (int x = 0; x < size; ++x, ++readHashLocation)
-                {
-                    readHashLocation %= readHash.Length;
-                    encryptedBuffer[x] = (byte)(encryptedBuffer[x] ^ readHash[readHashLocation]);
-                }
+                get { return baseStream.CanRead; }
             }
+
+            public override bool CanSeek
+            {
+                get { return baseStream.CanSeek; }
+            }
+
+            public override bool CanWrite
+            {
+                get { return baseStream.CanWrite; }
+            }
+
+            public override bool CanTimeout
+            {
+                get { return baseStream.CanTimeout; }
+            }
+
+            public override int ReadTimeout
+            {
+                get { return baseStream.ReadTimeout; }
+                set { baseStream.ReadTimeout = value; }
+            }
+
+            public override int WriteTimeout
+            {
+                get { return baseStream.WriteTimeout; }
+                set { baseStream.WriteTimeout = value; }
+            }
+
+            
+
+            public override void Close() { baseStream.Close(); }
+            public override void SetLength(long value) { baseStream.SetLength(value); }
+            public override long Seek(long offset, SeekOrigin origin) { return baseStream.Seek(offset, origin); }
+            public override void Flush() { baseStream.Flush(); }
+
 
         #endregion
-
     }
 }

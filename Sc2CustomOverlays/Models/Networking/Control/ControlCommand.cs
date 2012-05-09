@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Net.Sockets;
-using Sc2CustomOverlays.Models.Networking.Encryption;
+using System.IO;
 
 namespace Sc2CustomOverlays.Models.Networking.Control.Commands
 {
@@ -33,11 +33,11 @@ namespace Sc2CustomOverlays.Models.Networking.Control.Commands
          */
 
         // Returns CommandResult (see below) that holds success/failure and implementation specific data.
-        public abstract CommandResult HandleCommand(EncryptedNetworkStream ns);
+        public abstract CommandResult HandleCommand(Stream ns);
         
         // Returns whether the command sent successfully or not.
         //  Note: parameters can be left null on any call, implementations should take this into consideration.
-        public abstract bool SendCommand(EncryptedNetworkStream ns, Dictionary<string, object> parameters = null);
+        public abstract bool SendCommand(Stream ns, Dictionary<string, object> parameters = null);
     }
 
     public class CommandResult

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Sc2CustomOverlays.Models.Networking.Encryption;
 using System.IO;
 
 namespace Sc2CustomOverlays.Models.Networking.Control.Commands
@@ -22,7 +21,7 @@ namespace Sc2CustomOverlays.Models.Networking.Control.Commands
         // Returns CommandResult (see below) that holds success/failure and implementation specific data.
         //  Return Data: 1
         //   List<AvailableOverlaySetting> remoteSettings
-        public override CommandResult HandleCommand(EncryptedNetworkStream ns)
+        public override CommandResult HandleCommand(Stream ns)
         {
             Dictionary<string, object> resultData = new Dictionary<string,object>();
             List<AvailableOverlaySetting> remoteSettings = new List<AvailableOverlaySetting>();
@@ -31,7 +30,7 @@ namespace Sc2CustomOverlays.Models.Networking.Control.Commands
             {
                 // Read length of the list
                 byte[] settingsListSizeBytes = new byte[4];
-                ns.ForceReadAll(settingsListSizeBytes, 0, 4);
+                StreamHelper.ForceReadAll(ns, settingsListSizeBytes, 0, 4);
                 int settingsListSize = BitConverter.ToInt32(settingsListSizeBytes, 0);
 
                 // For each element, read name and path and create an AvailableOverlaySetting for each
@@ -58,7 +57,7 @@ namespace Sc2CustomOverlays.Models.Networking.Control.Commands
         // Returns whether the command sent successfully or not.
         //  In Parameters: 1
         //   List<AvailableOverlaySetting> availableSettings
-        public override bool SendCommand(EncryptedNetworkStream ns, Dictionary<string, object> parameters = null)
+        public override bool SendCommand(Stream ns, Dictionary<string, object> parameters = null)
         {
             // Validate that parameters is valid.
             if (parameters == null)

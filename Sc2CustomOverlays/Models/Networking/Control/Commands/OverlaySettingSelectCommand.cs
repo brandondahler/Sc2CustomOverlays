@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Sc2CustomOverlays.Models.Networking.Encryption;
+using System.IO;
 
 namespace Sc2CustomOverlays.Models.Networking.Control.Commands
 {
@@ -22,13 +22,13 @@ namespace Sc2CustomOverlays.Models.Networking.Control.Commands
         //  Return Data: 2
         //   bool remote
         //   string selectedPath
-        public override CommandResult HandleCommand(EncryptedNetworkStream ns)
+        public override CommandResult HandleCommand(Stream ns)
         {
             Dictionary<string, object> commandData = new Dictionary<string, object>();
 
             // Read serverRemoteByte
             byte[] serverRemoteByte = new byte[1];
-            ns.ForceReadAll(serverRemoteByte, 0, 1);
+            StreamHelper.ForceReadAll(ns, serverRemoteByte, 0, 1);
             commandData["remote"] = BitConverter.ToBoolean(serverRemoteByte, 0);
 
             // Read selectedPath
@@ -40,7 +40,7 @@ namespace Sc2CustomOverlays.Models.Networking.Control.Commands
         // Returns whether the command sent successfully or not.
         //  In Parameters: 1
         //   AvailableOverlaySetting selectedSetting 
-        public override bool SendCommand(EncryptedNetworkStream ns, Dictionary<string, object> parameters = null)
+        public override bool SendCommand(Stream ns, Dictionary<string, object> parameters = null)
         {
             // Validate that parameters is valid.
             if (parameters == null)

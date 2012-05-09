@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using Sc2CustomOverlays.Models.Networking.Encryption;
 
 namespace Sc2CustomOverlays.Models.Networking.Control.Commands
 {
@@ -22,7 +21,7 @@ namespace Sc2CustomOverlays.Models.Networking.Control.Commands
         // Returns CommandResult (see below) that holds success/failure and implementation specific data.
         //  Return Data: 1
         //   DirectoryInfo savedDirectory
-        public override CommandResult HandleCommand(EncryptedNetworkStream ns)
+        public override CommandResult HandleCommand(Stream ns)
         {
             Dictionary<string, object> returnData = new Dictionary<string,object>();
             DirectoryInfo tempDirectory = OverlaySettings.OverlaysTempBasePath;
@@ -42,7 +41,7 @@ namespace Sc2CustomOverlays.Models.Networking.Control.Commands
         // Returns whether the command sent successfully or not.
         //  In Parameters: 1
         //   DirectoryInfo fromDirectory
-        public override bool SendCommand(EncryptedNetworkStream ns, Dictionary<string, object> parameters = null)
+        public override bool SendCommand(Stream ns, Dictionary<string, object> parameters = null)
         {
             // Validate that parameters is valid.
             if (parameters == null)
@@ -78,7 +77,7 @@ namespace Sc2CustomOverlays.Models.Networking.Control.Commands
             return true;
         }
 
-        private void SendDirectory(DirectoryInfo currentDirectory, EncryptedNetworkStream ns)
+        private void SendDirectory(DirectoryInfo currentDirectory, Stream ns)
         {
             // Send bytes of Directory name
             byte[] directoryNameBytes = SerializedString.ToNetworkBytes(currentDirectory.Name);
@@ -129,7 +128,7 @@ namespace Sc2CustomOverlays.Models.Networking.Control.Commands
 
         }
 
-        private DirectoryInfo ReceiveDirectory(EncryptedNetworkStream ns, DirectoryInfo parentDirectory)
+        private DirectoryInfo ReceiveDirectory(Stream ns, DirectoryInfo parentDirectory)
         {
             // Create subdirectory, remove all \, /, and ..'s to preserve security
             string directoryName = SerializedString.FromNetworkBytes(ns).Replace("\\", "").Replace("/", "").Replace("..", "");
@@ -140,8 +139,8 @@ namespace Sc2CustomOverlays.Models.Networking.Control.Commands
             byte[] fileCountBytes = new byte[4];
             byte[] directoryCountBytes = new byte[4];
 
-            ns.ForceReadAll(fileCountBytes, 0, 4);
-            ns.ForceReadAll(directoryCountBytes, 0, 4);
+            StreamHelper.ForceReadAll(ns, fileCountBytes, 0, 4);
+            StreamHelper.ForceReadAll(ns, directoryCountBytes, 0, 4);
 
             int fileCount = BitConverter.ToInt32(fileCountBytes, 0);
             int directoryCount = BitConverter.ToInt32(directoryCountBytes, 0);
@@ -153,7 +152,7 @@ namespace Sc2CustomOverlays.Models.Networking.Control.Commands
                 FileInfo receivedFile = new FileInfo(Path.Combine(receivedDirectory.FullName, fileName));
 
                 byte[] fileSizeBytes = new byte[8];
-                ns.ForceReadAll(fileSizeBytes, 0, 8);
+                StreamHelper.ForceReadAll(ns, fileSizeBytes, 0, 8);
 
                 long fileSize = BitConverter.ToInt64(fileSizeBytes, 0);
 
@@ -177,17 +176,17 @@ namespace Sc2CustomOverlays.Models.Networking.Control.Commands
                 long remainingBytes = fileSize;
 
                 byte[] fileBytes = new byte[8192];
-                int bytesRead = 0;
 
                 while (remainingBytes > 0)
                 {
                     // Read from network and write to file
-                    bytesRead = ns.ForceReadAll(fileBytes, 0, (remainingBytes > 8192 ? 8192 : (int) remainingBytes));
+                    int chunkSize = (remainingBytes > 8192 ? 8192 : (int) remainingBytes);
+                    StreamHelper.ForceReadAll(ns, fileBytes, 0, chunkSize);
                     if (fs != null)
-                        fs.Write(fileBytes, 0, 8192);
+                        fs.Write(fileBytes, 0, chunkSize);
 
                     // Subtract out bytes just received
-                    remainingBytes -= bytesRead;
+                    remainingBytes -= chunkSize;
                 }
 
                 if (fs != null)

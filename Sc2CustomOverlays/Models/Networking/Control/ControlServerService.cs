@@ -9,7 +9,9 @@ using System.Net;
 using Sc2CustomOverlays.Models.Networking.Control;
 using Sc2CustomOverlays.Models.Networking.StatusConstants;
 using Sc2CustomOverlays.Models.Networking.Encryption;
+using System.IO;
 using System.Windows;
+
 
 namespace Sc2CustomOverlays.Models.Networking.Control
 {
@@ -37,8 +39,8 @@ namespace Sc2CustomOverlays.Models.Networking.Control
 
         // Protected Properties
         #region Server
-            private EncryptedTcpListener _server = null;
-            protected EncryptedTcpListener Server
+            private TcpListener _server = null;
+            protected TcpListener Server
             {
                 get { return _server; }
                 set
@@ -88,25 +90,26 @@ namespace Sc2CustomOverlays.Models.Networking.Control
             {
                 SocketThreadInfo threadInfo = (SocketThreadInfo) threadParams;
 
-                Server = new EncryptedTcpListener(IPAddress.Any, threadInfo.port);
+                Server = new TcpListener(IPAddress.Any, threadInfo.port);
                 Server.Start();
             
                 while (true)
                 {
                     ListeningStatus = ListenStatus.Listening;    
 
-                    Connection = Server.AcceptEncryptedTcpClient();
+                    Connection = Server.AcceptTcpClient();
                     ConnectedStatus = ConnectionStatus.Connecting;
                 
-                    ListeningStatus = ListenStatus.Authenticating;
-                    ConnectedStatus = ConnectionStatus.Authenticating;
-                    EncryptedStream = Connection.GetEncryptedStream(threadInfo.password);
-
-                    ListeningStatus = ListenStatus.Connected;
-                    ConnectedStatus = ConnectionStatus.Connected;
-
                     try
                     {
+                        ListeningStatus = ListenStatus.Authenticating;
+                        ConnectedStatus = ConnectionStatus.Authenticating;
+
+                        EncryptedStream = new EncryptedNetworkStream(Connection.GetStream(), threadInfo.password, false);
+
+                        ListeningStatus = ListenStatus.Connected;
+                        ConnectedStatus = ConnectionStatus.Connected;
+
                         ProcessData();
                     } catch (Exception ex) {
                     }
