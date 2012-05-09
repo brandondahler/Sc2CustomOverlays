@@ -296,9 +296,13 @@
     <Resource Include="Overlays\SimpleOverlay\Simple.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Overlays\SimpleOverlay\Background.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    <Resource Include="Overlays\SimpleOverlay\Background.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Overlays\Starboard\ProtossLogoBlack.png" />
+    <Resource Include="Overlays\Starboard\RandomLogoBlack.png" />
+    <Resource Include="Overlays\Starboard\TerranLogoBlack.png" />
+    <Resource Include="Overlays\Starboard\ZergLogoBlack.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
