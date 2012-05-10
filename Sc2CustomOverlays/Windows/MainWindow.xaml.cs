@@ -50,6 +50,7 @@ namespace Sc2CustomOverlays.Windows
                 #region Window
                     private void Window_Loaded(object sender, RoutedEventArgs e)
                     {
+                        /*
                         try
                         {
                             OverlaySettings.Instance.Load(new FileInfo(Path.Combine(OverlaySettings.OverlaysBasePath.FullName, "Starboard\\Starboard.xml")));
@@ -58,6 +59,7 @@ namespace Sc2CustomOverlays.Windows
                         } catch (Exception ex) {
                             MessageBox.Show("Unhandled exception: " + ex.Message);
                         }
+                         */
                     }
 
 

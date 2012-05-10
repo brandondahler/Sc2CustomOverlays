@@ -167,7 +167,7 @@ namespace Sc2CustomOverlays.Models
                             Local = true,
                             Name = settingsFolder.Name + ": " + Path.GetFileNameWithoutExtension(overlaySettingFile.Name),
                             Path = baseUri.MakeRelativeUri(new Uri(overlaySettingFile.FullName)).ToString(),
-                            IsCurrent = (Instance.diskLocation.FullName == overlaySettingFile.FullName)
+                            IsCurrent = (Instance.diskLocation != null ? (Instance.diskLocation.FullName == overlaySettingFile.FullName) : false)
                         };
 
                         availableSettings.Add(aos);
