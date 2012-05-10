@@ -49,9 +49,14 @@ Visit https://github.com/ascendedguard/starboard-sc2 for access to the Starboard
         </ItemSelector>
         <ItemSelector name="Color1" label="Color" default="#00FFFFFF" columns="5" itemHeight="22" itemWidth="36" group="Player1">
             <Color alt="None" color="Transparent" value="#00FFFFFF" />
-            <Color alt="Red" color="#FF0000" value="#88FF0000" />
-            <Color alt="Green" color="#00CC00" value="#8800CC00" />
-            <Color alt="Blue" color="#0000FF" value="#880000FF" />
+            <Color alt="Red" color="#CF0000" value="#88CF0000" />
+            <Color alt="Blue" color="#00008C" value="#8800008C" />
+            <Color alt="Teal" color="#00CAD1" value="#8800CAC1" />
+            <Color alt="Purple" color="#8400C0" value="#8800CC00" />
+            <Color alt="Yellow" color="#CAC300" value="#88CAC300" />
+            <Color alt="Orange" color="#C08400" value="#88C08400" />
+            <Color alt="Green" color="#008C00" value="#88008C00" />
+            <Color alt="LightPink" color="#F47AEA" value="#88F47AEA" />
         </ItemSelector>
 
         <String name="Player2" label="Name" default="Player 2" group="Player2" />
@@ -64,9 +69,14 @@ Visit https://github.com/ascendedguard/starboard-sc2 for access to the Starboard
         </ItemSelector>
         <ItemSelector name="Color2" label="Color" default="#00FFFFFF" columns="5" itemHeight="22" itemWidth="36" group="Player2">
             <Color alt="None" color="Transparent" value="#00FFFFFF" />
-            <Color alt="Red" color="#FF0000" value="#88FF0000" />
-            <Color alt="Green" color="#00CC00" value="#8800CC00" />
-            <Color alt="Blue" color="#0000FF" value="#880000FF" />
+            <Color alt="Red" color="#CF0000" value="#88CF0000" />
+            <Color alt="Blue" color="#00008C" value="#8800008C" />
+            <Color alt="Teal" color="#00CAD1" value="#8800CAC1" />
+            <Color alt="Purple" color="#8400C0" value="#8800CC00" />
+            <Color alt="Yellow" color="#CAC300" value="#88CAC300" />
+            <Color alt="Orange" color="#C08400" value="#88C08400" />
+            <Color alt="Green" color="#008C00" value="#88008C00" />
+            <Color alt="LightPink" color="#F47AEA" value="#88F47AEA" />
         </ItemSelector>
     </Variables>
 
